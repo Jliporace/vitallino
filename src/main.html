@@ -30,12 +30,16 @@ __date__    = "2013/01/09 $Date$"
 """
 #--><script type="text/python">
 
+
+REPO = 'public/image/%s'
 WIND=[(0,-1),(1,0),(0,1),(-1,0)]
 NN,EE,SS,WW = WIND
 def noop(nop=''):
     pass
 HANDLER = {"_NOOP_":'noop()'}
 VKHANDLER = dict([(k,noop) for k in range(32,40)])
+    
+doc.onkeypress=jshandler
 
 def uuid():
     r = jsptrand()
@@ -50,8 +54,12 @@ def jshandler(event):
 def eventify(owner):
     #alert('owner :'+owner)
     HANDLER[owner]()
-    
-doc.onkeypress=jshandler
+
+def inherit(base, child):
+    overriden, inherited = dir(child), dir(base)
+    for member in inherited:
+        if member not in overriden:
+            setattr(child, member, getattr(base,member))
 
 class GUI:
     def __init__(self,panel):
@@ -115,14 +123,58 @@ class GUI:
     def over(self,handler):
       self._decorate(handler, onMouseOver=handler)
       return self
-CLAZZ ={}
-INSTANCE={}
+        
+class Avatar:
+    def _load_images(self,img,gui):
+        cardinames = [c for c in 'nesw']
+        self.images =[]
+        for direction in cardinames:
+            line = []
+            for step in range(3):
+                im = gui.image(href=img%(direction,step),
+                    x=100,y=100, width=32,height=32)
+                im.setAttribute("visibility",'hidden')
+                line.append(im)
+            self.images.append(line)
+        self.heading = 1
+        self.current = 0
+    def _show(self):
+        self.current = (self.current + 1) % 3
+        self.avatar.setAttribute("visibility",'hidden')
+        self.avatar= self.images[self.heading][self.current]
+        self.avatar.setAttribute('x', self.x) 
+        self.avatar.setAttribute('y', self.y)
+        self.avatar.setAttribute("visibility",'visible')
+    def move(self, x, y):
+        self.x, self.y = x, y
+        self._show()
+    def go_left(self):
+        self.heading = (self.heading - 1)%4
+        self._show()
+    def go_right(self):
+        self.heading = (self.heading + 1)%4
+        self._show()
 
-def inherit(base, child):
-    overriden, inherited = dir(child), dir(base)
-    for member in inherited:
-        if member not in overriden:
-            setattr(child, member, getattr(base,member))
+    def __init__(self,gui):
+        VKHANDLER[37]=self.go_left
+        VKHANDLER[39]=self.go_right
+        print( 'Avatar,init') 
+        self.x, self.y = 0, 0
+        self._load_images(REPO%'smkp-%s0%d.gif',gui)
+        self.avatar = self.images[self.heading][self.current]
+
+class Sprite:
+    def _show(self, x, y):
+        self.avatar.setAttribute('x', x) 
+        self.avatar.setAttribute('y', y)
+        self.avatar.setAttribute("visibility",'visible')
+    def move(self, place,x,y):
+        self.place, self.x, self.y = place, x, y
+        self._show(*place.get_position(x=x,y=y))
+    def __init__(self,gui, img, place, x, y):
+        self.avatar = gui.image(href=REPO%img,
+                    x=100,y=100, width=32,height=32)
+        self.move(place, x, y)
 
 class Way:
     def __init__(self, avatar, place, x, y, **kw):
@@ -162,9 +214,7 @@ class Door:
     def __init__(self, avatar, place, x, y, **kw):
         self.m = str(self.__class__)
         inherit(Way(avatar, place, x, y),self)
-        self.avatar,self.place = avatar, place
-        self.thing, self.x, self.y, self.m = place, x, y, str(self.__class__)
-        self.place.x, self.place.y =  x, y
+        place.x, place.y =  x, y
 
 class Border:
     def __init__(self, avatar, place, x, y, **kw):
@@ -173,50 +223,12 @@ class Border:
     def enter(self, *a, **kw):
         pass
 
-        
-class Avatar:
-    def _load_images(self,img,gui):
-        cardinames = [c for c in 'nesw']
-        #self.directions=[(0,-1),(1,0),(0,1),(-1,0)]
-        self.images =[]
-        for direction in cardinames:
-            line = []
-            for step in range(3):
-                im = gui.image(href=img%(direction,step),
-                    x=100,y=100, width=32,height=32)
-                im.setAttribute("visibility",'hidden')
-                line.append(im)
-            self.images.append(line)
-        self.heading = 1
-        self.current = 0
-    def _show(self):
-        self.current = (self.current + 1) % 3
-        self.avatar.setAttribute("visibility",'hidden')
-        self.avatar= self.images[self.heading][self.current]
-        self.avatar.setAttribute('x', self.x) 
-        self.avatar.setAttribute('y', self.y)
-        self.avatar.setAttribute("visibility",'visible')
-    def move(self, x, y):
-        self.x, self.y = x, y
-        self._show()
-    def go_forward(self):
-        self.x += WIND[self.heading][0]
-        self.y += WIND[self.heading][1]
-        self._show()
-    def go_left(self):
-        self.heading = (self.heading - 1)%4
-        self._show()
-    def go_right(self):
-        self.heading = (self.heading + 1)%4
-        self._show()
-
-    def __init__(self,gui):
-        VKHANDLER[37]=self.go_left
-        VKHANDLER[39]=self.go_right
-        print( 'Avatar,init') 
-        self.x, self.y = 0, 0
-        self._load_images('public/image/smkp-%s0%d.gif',gui)
-        self.avatar = self.images[self.heading][self.current]
+class Trunk:
+    def __init__(self, avatar, place, x, y, **kw):
+        inherit(Way(avatar, place, x, y),self)
+    def enter(self, *a, **kw):
+        print('Cant PUSH!!')
+        pass
 
 class Actor:
     def get_direction(self):
@@ -232,28 +244,32 @@ class Actor:
         print( 'actor,move, position %d %d  entry%s real %d %d'%(x, y, entry, mx, my))
         avatar.move(mx, my)
     def go_backward(self):
-        ##print( 'actor,leave %d %d %s'%(self.x, self.y, dir(self)))
-        ##self.avatar.go_left()
         thing = self.thing
         thing.leave(self, action=self.move, reverse=2)
     def go_forward(self):
-        ##print( 'actor,leave %d %d %s'%(self.x, self.y, dir(self)))
-        ##self.avatar.go_left()
         thing = self.thing
         thing.leave(self, action=self.move)
     def __init__(self, avatar, place, x, y, **kw):
         print( 'actor,init',avatar, place, x, y)
         self.avatar, self.place, self.x, self.y = avatar, place, x, y
-        #aplace = Door(avatar, place, x, y)
-        #self.place.plan[y][x] = aplace
         self.thing = place
         VKHANDLER[38] = self.go_forward
         VKHANDLER[40] = self.go_backward
         print( 'actor,init %d %d %s'%(self.x, self.y, dir(self.thing)))
         
-INVENTORY = {'.':Way, ' ': Border, '&':Door, '@':Tar}
-SIMPLE = ('@@&'+'.'*2+('\n'+'.'*5)*4)
+class NullSprite:
+    def move(self, place,x,y):
+        pass
+    def __init__(self, *a):
+        pass
+    
+INVENTORY = {'.':Way, ' ': Border, '&':Door, '@':Tar, '%':Trunk}
+ES,FS = NullSprite, Sprite        
+INVENTORY = {'.':[Way,ES,None], ' ': [Border,ES,None], '&':[Door,ES,None]
+    , '@':[Tar,FS,'piche.gif'], '%':[Trunk,FS,'tronco.gif']}
+SIMPLE = ('@%&'+'.'*2+('\n'+'.'*5)*4)
 #p = [['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)] for y, row in enumerate(border)]
+
 class Place:
     def get_position(self,x=0,y=0):
         return (x * 32 + 100 - 32, y * 32 + 100 -32)
@@ -269,27 +285,34 @@ class Place:
         x,y = position #or (self.x, self.y)
         ##print( 'place,enter, position %d %d'%(x, y))
         action( x, y, thing)
-    def nleave(self,thing, action=None, reverse =0):
-        #x, y = thing.get_position()
-        ###print( 'place,leave, position %d %d'%(x, y))
-        #dx, dy = WIND[thing.get_direction() - reverse]
-        #pos = (x+dy, y+dx)
-        #px, py = pos
-        locus = self.get_next(thing,reverse)
-        #print( 'place,leave xy %s nxy %s d %d'%((x,y), pos, thing.get_direction()))
-        locus.enter(thing, action = action, position =self.pos)
-        return
     def __init__(self, gui, plan =SIMPLE, **kw):
-        self.av = Avatar(gui)
         self._load(plan, gui)
         x, y = self.x, self.y
-        actor = Actor(self.av, self, x, y )
+        actor = Actor(Avatar(gui), self, x, y )
         door = self.plan[y][x]
         print( 'place,init xy %s actor %s door %s'%((x,y), actor, door))
-        #door.enter(actor, action=actor.move)
         actor.move(x,y,self)
         actor.thing = door
     def _load(self,plan, gui):
+        def line(y, row):
+            #x = ['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)]
+            IV, PART, ICON, IMGE  = INVENTORY, 0, 1, 2
+            me, av = self, ES
+            x = [IV[p][PART](IV[p][ICON](gui, IV[p][IMGE],me,x,y),me,x,y)
+                for x, p in enumerate(' %s '%row)]
+            return x
+        
+        w = len(plan.split('\n')[0])
+        border =[' '*w]
+        border.extend(plan.split('\n'))
+        border.extend([' '*w])
+        self.plan = []
+        for y,row in enumerate(border):
+            self.plan += [line(y,row)]
+        ##print(self.plan)
+        plan = self.plan
+        print ([(p[1],p[1].x) for p in plan])
+    def n_load(self,plan, gui):
         def line(y, row):
             #x = ['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)]
             me, av = self, self.av
