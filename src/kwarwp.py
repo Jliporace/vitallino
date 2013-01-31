@@ -23,6 +23,7 @@ def inherit(base, child):
     for member in inherited:
         if member not in overriden:
             setattr(child, member, getattr(base,member))
+    child.m =  str(child.__class__)
     return base
 
 #class Entrance:
@@ -33,19 +34,18 @@ class Way:
     def __init__(self, avatar, place, x, y, **kw):
         #inherit(Entrance(place, x, y),self)
         self.avatar,self.place = avatar, place
-        self.thing, self.x, self.y, self.m = place, x, y, str(self.__class__)
-        #self.push = self.leave
-    def _move(self, x, y, entry):
-        self.thing = entry
-        print( '%s.move, position %d %d thing %s'%(self.m, x, y, self.thing))
-        self._action( self.x, self.y, self)
+        self.thing, self.x, self.y, self.m = place, x, y, 'Way'
     def enter(self,entry, action=noop, position=None):
         self._action, thing, x, y = action, self.thing, self.x,self.y
+        def _move(x, y, entry, act = action):
+            self.thing = entry
+            print( '%s.move, position %d %d thing %s'%(self.m, x, y, self.thing))
+            act( self.x, self.y, self)
         pos= (x, y)
         if position != None:
             position = pos
         print( '%s.enter,thing %s entry %s position %s'%(self.m, thing, entry, position))
-        thing.enter(entry, action=self._move, position = position)
+        thing.enter(entry, action=_move, position = position)
     def get_position(self,x=0,y=0):
         return self.place.get_position(x=x,y=y)
     def _left(self, x, y , entry):
@@ -60,8 +60,10 @@ class Way:
         print( '%s.leave locus %s lpos %d %d'%(self.m, locus, locus.x,locus.y))
         locus.enter(entry, action = self._left, position =(locus.x,locus.y))
     def push(self,entry, action, reverse =0):
-        print( '%s.pushway locus %s lpos %d %d'%(self.m, entry, entry.x,entry.y))
-        self.leave(entry, action, reverse =reverse)
+        self._pusher = action
+        self.thing.get_next(entry,reverse =reverse)
+        print( '%s.leave locus %s lpos %d %d'%(self.m, locus, locus.x,locus.y))
+        self.thing.push(entry, action = self._push, position =(locus.x,locus.y))
 
 class Tar:
     def __init__(self, avatar, place, x, y, **kw):
@@ -100,10 +102,18 @@ class Trunk:
         #self.locus = entry
         #self._pusher = action
         #self.thing.push(self, self._pushed, reverse =reverse)
+        
     def __init__(self, avatar, place, x, y, **kw):
-        baser = inherit(Way(avatar, place, x, y),self)
+        #self.push = self._push
+        print ('Trunk:', dir(self))
+        #baser = inherit(Way(avatar, place, x, y),self)
+        baser = Way(avatar, place, x, y)
+        for member in dir (baser):
+            if member not in dir(self):
+                print(member)
+                setattr(self, member, getattr(baser,member))
         self.thing, self.x, self.y, self.m = place, x, y, str(self.__class__)
-        self.place = Way(None,place, self.x, self.y)
+        #self.place = Way(None,place, self.x, self.y)
         #self.push = self._push
 
 class Border:
