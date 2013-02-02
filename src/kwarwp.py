@@ -31,34 +31,32 @@ def inherit(base, child):
 #        self.thing, self.x, self.y, self.m = place, x, y, str(self.__class__)
 
 class Way:
-    def __init__(self, avatar, place, x, y, **kw):
+    def __init__(self, avatar, place, x, y, me=None, **kw):
         #inherit(Entrance(place, x, y),self)
         self.avatar,self.place = avatar, place
-        self.thing, self.x, self.y, self.m = place, x, y, 'Way'
+        self.thing, self.x, self.y, self.m = place, x, y, me or self
     def enter(self,entry, action, position=None):
         self._action, thing, x, y = action, self.thing, self.x,self.y
-        def _move(x, y, entry, act = action):
-            self.thing = entry
-            print( '%s.move, position %d %d thing %s'%(self.m, x, y, self.thing))
+        def _move(x, y, entry, act = action, me=self.m):
+            me.thing = entry
+            print( '%s._move, position %d %d thing %s'%(self.m, x, y, me.thing))
             act( self.x, self.y, self)
         pos= (x, y)
         if position != None:
             position = pos
-        print( '%s.enter,thing %s entry %s position %s'%(self.m, thing, entry, position))
         thing.enter(entry, action=_move, position = position)
+        print( '%s.enter,thing %s self %s position %s'%(self.m, self.thing, self, position))
     def get_position(self,x=0,y=0):
         return self.place.get_position(x=x,y=y)
-    def _left(self, x, y , entry):
-        self.thing = self.place
-        self._leaver( x, y, self.locus)
     def _support(self):
         self.place = Way(None,self.place, self.x, self.y)
     def leave(self,entry, action, reverse =0):
-        self._leaver = action
         locus = self.place.get_next(entry,reverse =reverse)
-        self.locus = locus
+        def _left(x, y, entry, act = action, me=self.m, loc = locus):
+            me.thing = self.place
+            act( x, y, loc)
         print( '%s.leave locus %s lpos %d %d'%(self.m, locus, locus.x,locus.y))
-        locus.enter(entry, action = self._left, position =(locus.x,locus.y))
+        locus.enter(entry, action = _left, position =(locus.x,locus.y))
     def push(self,entry, action, reverse =0):
         self._pusher = action
         self.thing.get_next(entry,reverse =reverse)
@@ -67,15 +65,14 @@ class Way:
 
 class Tar:
     def __init__(self, avatar, place, x, y, **kw):
-        inherit(Way(avatar, place, x, y),self)
+        inherit(Way(avatar, place, x, y, me=self),self)
     def leave(self,thing, action, reverse =0):
         print('Youre STUCK!!!')
         pass
 
 class Door:
     def __init__(self, avatar, place, x, y, **kw):
-        self.m = str(self.__class__)
-        inherit(Way(avatar, place, x, y),self)
+        inherit(Way(avatar, place, x, y, me=self),self)
         place.x, place.y =  x, y
 
 class Trunk:
@@ -107,7 +104,7 @@ class Trunk:
         #self.push = self._push
         print ('Trunk:', dir(self))
         #baser = inherit(Way(avatar, place, x, y),self)
-        baser = Way(avatar, place, x, y)
+        baser = Way(avatar, place, x, y, me=self)
         for member in dir (baser):
             if member not in dir(self):
                 print(member)
@@ -120,7 +117,7 @@ class Border:
     def enter(self,entry, action, position=None):
         print('Cant go this way!!')
     def __init__(self, avatar, place, x, y, **kw):
-        inherit(Way(avatar, place, x, y),self)
+        inherit(Way(avatar, place, x, y, me=self),self)
         self.thing, self.x, self.y, self.m = place, x, y, str(self.__class__)
         self.place = Way(None,place, self.x, self.y)
         #self.avatar,self.place, self.x, self.y = avatar, place, x, y
@@ -183,7 +180,7 @@ class Place:
         return (x * 32 + 100 - 32, y * 32 + 100 -32)
     def get_next(self,thing, reverse =0):
         x, y = thing.get_position()
-        dx, dy = WIND[thing.get_direction() - reverse]
+        dx, dy = WIND[thing.avatar.get_direction() - reverse]
         self.pos = (x+dx, y+dy)
         px, py = self.pos
         locus = self.plan[py][px]
@@ -199,6 +196,7 @@ class Place:
         self.push = self.enter
         x, y = self.x, self.y
         actor = Actor(gui.avatar(), self, x, y )
+        self.actor = actor
         door = self.plan[y][x]
         print( 'place,init xy %s actor %s door %s'%((x,y), actor, door))
         actor.move(x,y,self)

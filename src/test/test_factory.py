@@ -7,15 +7,15 @@ Pygame Factory : Gui interface to pygame
 
 :Author: *Carlo E. T. Oliveira*
 :Contact: carlo@nce.ufrj.br
-:Date: $Date: 2011/07/31  $
+:Date: $Date: 2013/02/02  $
 :Status: This is a "work in progress"
 :Revision: $Revision: 0.1 $
 :Home: `Labase <http://labase.nce.ufrj.br/>`__
 :Copyright: ©2011, `GPL <http://is.gd/3Udt>`__. 
 """
-__author__  = "Carlo E. T. Oliveira (cetoli@yahoo.com.br) $Author: cetoli $"
+__author__  = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
 __version__ = "0.1 $Revision$"[10:-1]
-__date__    = "2011/07/31 $Date$"
+__date__    = "2013/02/02 $Date$"
 
         
 import mocker
@@ -45,29 +45,55 @@ class TestPyjama(mocker.MockerTestCase):
     self.app = None
     pass
 
-  def _testa_cria_place(self):
-    "create place"
-    expect(self.mc.avatar()).result(self.mc)
-    expect(self.mc.handler(ARGS)).count(1,6)
-    expect(self.mc.move(ARGS))
-    self.mock.replay()
-    self.app = Place(self.mc, self.__list(), '.&.')
-
-  def testa_move_forward(self):
-    "move forward"
+  def _expect_all_place(self):
+    "place expectations"
     expect(self.mg.avatar()).result(self.ma)
     expect(self.mg.handler(ARGS)).count(1,6)
     expect(self.ma.move(ARGS))
     expect(self.mg(ARGS)).count(1,96)
+  def _replay_and_create_place(self):
+    "create place"
     self.mock_gui.replay()
-    self.app = Place(self.mg, self.__list(), '.%&')
-    self.mock_gui.restore()
-    self.mock_avt.restore()
-    #expect(self.ma.get_direction()).result(1)
-    #expect(self.ma.get_direction()).result(1)
-    #expect(self.ma.move(ARGS))
-    #self.mock_avt.replay()
-    #self.app.actor.go_forward()
+    self.app = Place(self.mg, self.__list(), '.&.')
+  def testa_cria_place(self):
+    "create place"
+    self._expect_all_place()
+    self._replay_and_create_place()
+
+  def testa_move_forward(self):
+    "move forward"
+    self._expect_all_place()
+    expect(self.ma.get_direction()).result(1)
+    expect(self.ma.move(ARGS))
+    self._replay_and_create_place()
+    B, A = 2,3
+    assert isinstance(self.app.plan[1][B].thing, Place),self.app.plan[1][B].thing
+    self.app.actor.go_forward()
+    assert self.app.actor.x == 3,self.app.actor.x
+    assert isinstance(self.app.plan[1][B], Door),self.app.plan[1][B]
+    assert isinstance(self.app.plan[1][B].thing, Place),self.app.plan[1][B].thing
+    assert self.app.plan[1][A].thing == self.app.actor,self.app.plan[1][A].thing 
+    assert isinstance(self.app.plan[1][A].thing.thing, Way),self.app.plan[1][A].thing.thing
+    
+  def testa_move_forward_and_back(self):
+    "move forward"
+    self._expect_all_place()
+    expect(self.ma.get_direction()).result(1)
+    expect(self.ma.move(ARGS))
+    expect(self.ma.get_direction()).result(1)
+    expect(self.ma.move(ARGS))
+    self._replay_and_create_place()
+    B, A = 3,2
+    assert isinstance(self.app.plan[1][2].thing, Place),self.app.plan[1][B].thing
+    self.app.actor.go_forward()
+    assert self.app.actor.x == B,self.app.actor.x
+    self.app.actor.go_backward()
+    assert self.app.actor.x == A,self.app.actor.x
+    assert isinstance(self.app.plan[1][B], Way),self.app.plan[1][B]
+    assert isinstance(self.app.plan[1][B].thing, Place),self.app.plan[1][B].thing
+    assert isinstance(self.app.plan[1][A], Door),self.app.plan[1][A].thing.thing
+    assert self.app.plan[1][A].thing == self.app.actor,self.app.plan[1][A].thing 
+    assert isinstance(self.app.plan[1][A].thing.thing, Door),self.app.plan[1][A].thing.thing
     
 
 

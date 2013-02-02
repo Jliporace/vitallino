@@ -127,6 +127,8 @@ class Avatar:
     def move(self, x, y):
         self.x, self.y = x, y
         self._show()
+    def get_direction(self):
+        return self.heading
     def go_left(self):
         self.heading = (self.heading - 1)%4
         self._show()
