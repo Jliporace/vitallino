@@ -20,55 +20,56 @@ __date__    = "2011/07/31 $Date$"
         
 import mocker
 from mocker import Mocker,KWARGS, ARGS, ANY, CONTAINS, MATCH, expect
-from jeppeto.pyjamas_factory import GUI
+from kwarwp import Place,Way,Border,Door,Tar,Trunk
 
 class TestPyjama(mocker.MockerTestCase):
   """Testes unitários para o Pyjamas"""
+  def __list(self):
+        INVENTORY = {'.':Way, ' ': Border, '&':Door, '@':Tar, '%':Border}
+        ES =FS = self.mg       
+        INVENTORY = {'.':[Way,ES,None], ' ': [Border,ES,None], '&':[Door,ES,None]
+            , '@':[Tar,FS,'piche.gif'], '%':[Trunk,FS,'tronco.gif']}
+        return INVENTORY
 
   def setUp(self):
-    self.mock = Mocker()
-    self.mc = self.mock.mock()
-    self.app = GUI()
-    self.app.canvas = self.mc
-    self.app.build_event = self.mc
-    self.app.build_drag = self.mc
-    self.app.offset = (0,0)
+    self.mock_gui = Mocker()
+    self.mock_avt = Mocker()
+    self.mg = self.mock_gui.mock()
+    self.ma = self.mock_gui.mock()
 
   def tearDown(self):
-    self.mock.restore()
-    self.mock.verify()
-    self.mock = None
+    self.mock_gui.restore()
+    self.mock_avt.restore()
+    self.mock_avt.verify()
+    self.mock_avt = None
     self.app = None
     pass
 
-  def testa_cria_rect(self):
-    "cria rect"
-    expect(self.mc.rect(1,2,2,2)).result(self.mc)
-    expect(self.mc.setAttrs(ANY))
-    #self.mc.avatar = ANY
+  def _testa_cria_place(self):
+    "create place"
+    expect(self.mc.avatar()).result(self.mc)
+    expect(self.mc.handler(ARGS)).count(1,6)
+    expect(self.mc.move(ARGS))
     self.mock.replay()
-    self.app.rect(1,2,3,4)
+    self.app = Place(self.mc, self.__list(), '.&.')
 
-  def testa_cria_img(self):
-    "cria img"
-    expect(self.mc.rect(1,2,3,4)).result(self.mc)
-    expect(self.mc.setAttrs(ANY))
-    #self.mc.avatar = ANY
-    expect(self.mc.set()).result(self.mc)
-    self.mc.add(ANY)
-    self.mock.replay()
-    self.app.image(None,1,2,3,4)
-  def testa_cria_drag(self):
-    "cria drag"
-    mk= self.mc
-    expect(self.mc(ANY,ANY)).result(self.mc)
-    self.mc.get_avatar().drag(ARGS)
-    mk.action
-    mk.start
-    mk.stop
+  def testa_move_forward(self):
+    "move forward"
+    expect(self.mg.avatar()).result(self.ma)
+    expect(self.mg.handler(ARGS)).count(1,6)
+    expect(self.ma.move(ARGS))
+    expect(self.mg(ARGS)).count(1,96)
+    self.mock_gui.replay()
+    self.app = Place(self.mg, self.__list(), '.%&')
+    self.mock_gui.restore()
+    self.mock_avt.restore()
+    #expect(self.ma.get_direction()).result(1)
+    #expect(self.ma.get_direction()).result(1)
+    #expect(self.ma.move(ARGS))
+    #self.mock_avt.replay()
+    #self.app.actor.go_forward()
     
-    self.mock.replay()
-    self.app.dragg(self.mc)
+
 
 if __name__ == '__main__':
     import unittest

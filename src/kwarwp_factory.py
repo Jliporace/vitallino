@@ -80,6 +80,11 @@ class GUI:
         self.panel <= element
         return element
     
+    def handler(self, key, handle):
+        VKHANDLER[key] = handle
+    def avatar(self):
+        return Avatar(self)
+    
     def _decorate(self, handler, **kw):
       self.args = {} #kw #dict(kw)
       #alert(' '.join([k for k,v in kw.items()]))

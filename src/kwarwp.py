@@ -9,7 +9,7 @@ Vitallino - Criador de Jogos Simplificado
 :Status: This is a "work in progress"
 :Revision: $Revision: 0.1 $
 :Home: `Labase http://labase.nce.ufrj.br/`__
-:Copyright: ©2011, `GPL http://is.gd/3Udt`__. 
+:Copyright: 2011, `GPL http://is.gd/3Udt`__. 
 __author__  = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
 __version__ = "0.1 $Revision$"[10:-1]
 __date__    = "2013/01/09 $Date$"
@@ -35,7 +35,7 @@ class Way:
         #inherit(Entrance(place, x, y),self)
         self.avatar,self.place = avatar, place
         self.thing, self.x, self.y, self.m = place, x, y, 'Way'
-    def enter(self,entry, action=noop, position=None):
+    def enter(self,entry, action, position=None):
         self._action, thing, x, y = action, self.thing, self.x,self.y
         def _move(x, y, entry, act = action):
             self.thing = entry
@@ -68,7 +68,7 @@ class Way:
 class Tar:
     def __init__(self, avatar, place, x, y, **kw):
         inherit(Way(avatar, place, x, y),self)
-    def leave(self,thing, action=noop, reverse =0):
+    def leave(self,thing, action, reverse =0):
         print('Youre STUCK!!!')
         pass
 
@@ -94,7 +94,7 @@ class Trunk:
     def _pushed(self, x, y , entry):
         #self.thing = self.place
         self._pusher( x, y, self.locus)
-    def enter(self,entry, action=noop, position=None):
+    def enter(self,entry, action, position=None):
         print('It is HEAVY!!')
     def push(self,entry, action, reverse =0):
         print('It iiiiiiiiiiis HEAVY!!')
@@ -117,7 +117,7 @@ class Trunk:
         #self.push = self._push
 
 class Border:
-    def enter(self,entry, action=noop, position=None):
+    def enter(self,entry, action, position=None):
         print('Cant go this way!!')
     def __init__(self, avatar, place, x, y, **kw):
         inherit(Way(avatar, place, x, y),self)
@@ -155,12 +155,12 @@ class Actor:
         print( 'actor,init',avatar, place, x, y)
         self.avatar, self.place, self.x, self.y = avatar, place, x, y
         self.thing = place
-        VKHANDLER[38] = self.go_forward
-        VKHANDLER[40] = self.go_backward
-        VKHANDLER[34] = self.go_pull
-        VKHANDLER[33] = self.go_push
-        VKHANDLER[35] = self.go_take
-        VKHANDLER[36] = self.go_give
+        place.gui.handler(38, self.go_forward)
+        place.gui.handler(40, self.go_backward)
+        place.gui.handler(34, self.go_pull)
+        place.gui.handler(33, self.go_push)
+        place.gui.handler(35, self.go_take)
+        place.gui.handler(36, self.go_give)
         print( 'actor,init %d %d %s'%(self.x, self.y, dir(self.thing)))
     
 class NullSprite:
@@ -168,11 +168,13 @@ class NullSprite:
         pass
     def __init__(self, *a):
         pass
+class Inventory:
+    def list(self):
+        ES,FS = NullSprite, Sprite        
+        invent = {'.':[Way,ES,None], ' ': [Border,ES,None], '&':[Door,ES,None]
+            , '@':[Tar,FS,'piche.gif'], '%':[Trunk,FS,'tronco.gif']}
+        return invent
 
-INVENTORY = {'.':Way, ' ': Border, '&':Door, '@':Tar, '%':Border}
-ES,FS = NullSprite, Sprite        
-INVENTORY = {'.':[Way,ES,None], ' ': [Border,ES,None], '&':[Door,ES,None]
-    , '@':[Tar,FS,'piche.gif'], '%':[Trunk,FS,'tronco.gif']}
 SIMPLE = ('@%&......'+'.'*10+('\n'+'.'*19)*12)
 #p = [['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)] for y, row in enumerate(border)]
 
@@ -191,20 +193,21 @@ class Place:
         x,y = position #or (self.x, self.y)
         ##print( 'place,enter, position %d %d'%(x, y))
         action( x, y, thing)
-    def __init__(self, gui, plan =SIMPLE, **kw):
-        self._load(plan, gui)
+    def __init__(self, gui, inventory, plan =SIMPLE, **kw):
+        self.gui = gui
+        self._load(plan, gui, inventory)
         self.push = self.enter
         x, y = self.x, self.y
-        actor = Actor(Avatar(gui), self, x, y )
+        actor = Actor(gui.avatar(), self, x, y )
         door = self.plan[y][x]
         print( 'place,init xy %s actor %s door %s'%((x,y), actor, door))
         actor.move(x,y,self)
         actor.thing = door
-    def _load(self,plan, gui):
+    def _load(self,plan, gui, IV):
         def line(y, row):
             #x = ['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)]
-            IV, PART, ICON, IMGE  = INVENTORY, 0, 1, 2
-            me, av = self, ES
+            PART, ICON, IMGE  = 0, 1, 2
+            me = self
             x = [IV[p][PART](IV[p][ICON](gui, IV[p][IMGE],me,x,y),me,x,y)
                 for x, p in enumerate(' %s '%row)]
             return x
@@ -232,6 +235,5 @@ def go(dc, pn, svg):
 
 def main(dc, pn, asvg):
     go(dc, pn, asvg)
-    place= Place(asvg)
-
-main(doc,doc['panel'], GUI(doc['panel']))
+    inv = Inventory()
+    place= Place(asvg, inventory= inv.list())
