@@ -1,5 +1,5 @@
 // brython.js www.brython.info
-// version 1.0.20130126-094636
+// version 1.0.20130202-094257
 // version compiled from commented, indented source files at http://code.google.com/p/brython/
 function abs(obj){
 if(isinstance(obj,int)){return int(Math.abs(obj))}
@@ -3742,6 +3742,7 @@ else{return obj[attr]}
 }
 this.get_text=function(){return obj.responseText}
 this.get_xml=function(){return $DomObject(obj.responseXML)}
+this.get_headers=function(){return list(obj.getAllResponseHeaders().split('\n'))}
 }
 function Ajax(){}
 Ajax.__class__=$type

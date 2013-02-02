@@ -51,10 +51,10 @@ class TestPyjama(mocker.MockerTestCase):
     expect(self.mg.handler(ARGS)).count(1,6)
     expect(self.ma.move(ARGS))
     expect(self.mg(ARGS)).count(1,96)
-  def _replay_and_create_place(self):
+  def _replay_and_create_place(self,p = '.&.'):
     "create place"
     self.mock_gui.replay()
-    self.app = Place(self.mg, self.__list(), '.&.')
+    self.app = Place(self.mg, self.__list(), p)
   def testa_cria_place(self):
     "create place"
     self._expect_all_place()

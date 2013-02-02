@@ -39,8 +39,8 @@ class Way:
         self._action, thing, x, y = action, self.thing, self.x,self.y
         def _move(x, y, entry, act = action, me=self.m):
             me.thing = entry
-            print( '%s._move, position %d %d thing %s'%(self.m, x, y, me.thing))
-            act( self.x, self.y, self)
+            print( '%s._move, position %d %d thing %s'%(me, x, y, me.thing))
+            act( self.x, self.y, me)
         pos= (x, y)
         if position != None:
             position = pos
@@ -51,12 +51,13 @@ class Way:
     def _support(self):
         self.place = Way(None,self.place, self.x, self.y)
     def leave(self,entry, action, reverse =0):
-        locus = self.place.get_next(entry,reverse =reverse)
-        def _left(x, y, entry, act = action, me=self.m, loc = locus):
+        #locus = self.place.get_next(entry,reverse =reverse)
+        def _left(x, y, loc, act = action, me=self.m):
             me.thing = self.place
             act( x, y, loc)
-        print( '%s.leave locus %s lpos %d %d'%(self.m, locus, locus.x,locus.y))
-        locus.enter(entry, action = _left, position =(locus.x,locus.y))
+        #print( '%s.leave locus %s lpos %d %d'%(self.m, locus, locus.x,locus.y))
+        self.place.leave(entry, action = _left, reverse=reverse)
+        #locus.enter(entry, action = _left, position =(locus.x,locus.y))
     def push(self,entry, action, reverse =0):
         self._pusher = action
         self.thing.get_next(entry,reverse =reverse)
@@ -190,6 +191,12 @@ class Place:
         x,y = position #or (self.x, self.y)
         ##print( 'place,enter, position %d %d'%(x, y))
         action( x, y, thing)
+    def leave(self,entry, action, reverse =0):
+        locus = self.get_next(entry,reverse =reverse)
+        def _left(x, y, entry, act = action, loc = locus):
+            act( x, y,  loc = loc)
+        print( '%s.leave locus %s lpos %d %d'%('Place', locus, locus.x,locus.y))
+        locus.enter(entry, action =_left, position =(locus.x,locus.y))
     def __init__(self, gui, inventory, plan =SIMPLE, **kw):
         self.gui = gui
         self._load(plan, gui, inventory)
