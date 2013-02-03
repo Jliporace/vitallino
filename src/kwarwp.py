@@ -120,10 +120,11 @@ class Trunk:
         place = Way(None,self, self.x, self.y)
         base[self.y][self.x]= place
         self.place, self.place.place = place, self.place
-        
 
 class Border:
     def enter(self,entry, action, position=None):
+        print('Cant go this way!!')
+    def push(self,entry, action, position=None):
         print('Cant go this way!!')
     def __init__(self, avatar, place, x, y, **kw):
         inherit(Way(avatar, place, x, y, me=self),self)
@@ -179,10 +180,10 @@ class Inventory:
     def list(self):
         ES,FS = NullSprite, Sprite        
         invent = {'.':[Way,ES,None], ' ': [Border,ES,None], '&':[Door,ES,None]
-            , '@':[Tar,FS,'piche.gif'], '%':[Trunk,FS,'tronco.gif']}
+            , '@':[Tar,FS,'piche.gif'], '$':[Trunk,FS,'tronco.gif']}
         return invent
 
-SIMPLE = ('@.%&.....'+'.'*10+('\n'+'.'*19)*12)
+SIMPLE = ('..$$$&...'+'.'*10+('\n'+'.'*19)*12)
 #p = [['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)] for y, row in enumerate(border)]
 
 class Place:

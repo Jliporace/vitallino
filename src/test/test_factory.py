@@ -25,10 +25,10 @@ from kwarwp import Place,Way,Border,Door,Tar,Trunk
 class TestPyjama(mocker.MockerTestCase):
   """Testes unitários para o Pyjamas"""
   def __list(self):
-        INVENTORY = {'.':Way, ' ': Border, '&':Door, '@':Tar, '%':Border}
+        #INVENTORY = {'.':Way, ' ': Border, '&':Door, '@':Tar, '%':Border}
         ES =FS = self.mg       
         INVENTORY = {'.':[Way,ES,None], ' ': [Border,ES,None], '&':[Door,ES,None]
-            , '@':[Tar,FS,'piche.gif'], '%':[Trunk,FS,'tronco.gif']}
+            , '@':[Tar,FS,'piche.gif'], '$':[Trunk,FS,'tronco.gif']}
         return INVENTORY
 
   def setUp(self):
@@ -51,6 +51,21 @@ class TestPyjama(mocker.MockerTestCase):
     expect(self.mg.handler(ARGS)).count(1,6)
     expect(self.ma.move(ARGS))
     expect(self.mg(ARGS)).count(1,96).result(self.ma)
+  def _check_after_push(self,A,B):
+    assert isinstance(self.app.plan[1][A], Way),self.app.plan[1][B]
+    assert isinstance(self.app.plan[1][B].thing, Place),self.app.plan[1][B].thing
+    assert isinstance(self.app.plan[1][A].place, Place),self.app.plan[1][B].place
+    assert isinstance(self.app.plan[1][A].thing, Trunk),self.app.plan[1][B].thing
+    assert isinstance(self.app.plan[1][A].thing.place, Way),self.app.plan[1][B].thing.place
+    assert self.app.plan[1][A].thing.place.x==A,self.app.plan[1][A].thing.place.x
+
+  def _check_after_move(self,A,B,C=Way,D=Door):
+    assert self.app.actor.x == A,self.app.actor.x
+    assert isinstance(self.app.plan[1][B], D),self.app.plan[1][B]
+    assert isinstance(self.app.plan[1][B].thing, Place),self.app.plan[1][B].thing
+    assert isinstance(self.app.plan[1][A], C),self.app.plan[1][A].thing.thing
+    assert self.app.plan[1][A].thing == self.app.actor,self.app.plan[1][A].thing 
+    assert isinstance(self.app.plan[1][A].thing.thing, C),self.app.plan[1][A].thing.thing
   def _replay_and_create_place(self,p = '.&.'):
     "create place"
     self.mock_gui.replay()
@@ -68,11 +83,7 @@ class TestPyjama(mocker.MockerTestCase):
     B, A = 2,3
     assert isinstance(self.app.plan[1][B].thing, Place),self.app.plan[1][B].thing
     self.app.actor.go_forward()
-    assert self.app.actor.x == 3,self.app.actor.x
-    assert isinstance(self.app.plan[1][B], Door),self.app.plan[1][B]
-    assert isinstance(self.app.plan[1][B].thing, Place),self.app.plan[1][B].thing
-    assert self.app.plan[1][A].thing == self.app.actor,self.app.plan[1][A].thing 
-    assert isinstance(self.app.plan[1][A].thing.thing, Way),self.app.plan[1][A].thing.thing
+    self._check_after_move(A,B,C=Way,D=Door)
     
   def testa_move_forward_and_back(self):
     "move forward"
@@ -87,12 +98,7 @@ class TestPyjama(mocker.MockerTestCase):
     self.app.actor.go_forward()
     assert self.app.actor.x == B,self.app.actor.x
     self.app.actor.go_backward()
-    assert self.app.actor.x == A,self.app.actor.x
-    assert isinstance(self.app.plan[1][B], Way),self.app.plan[1][B]
-    assert isinstance(self.app.plan[1][B].thing, Place),self.app.plan[1][B].thing
-    assert isinstance(self.app.plan[1][A], Door),self.app.plan[1][A].thing.thing
-    assert self.app.plan[1][A].thing == self.app.actor,self.app.plan[1][A].thing 
-    assert isinstance(self.app.plan[1][A].thing.thing, Door),self.app.plan[1][A].thing.thing
+    self._check_after_move(A,B,D=Way,C=Door)
     
   def testa_push_forward(self):
     "push forward"
@@ -103,11 +109,7 @@ class TestPyjama(mocker.MockerTestCase):
     B, A = 2,3
     assert isinstance(self.app.plan[1][B].thing, Place),self.app.plan[1][B].thing
     self.app.actor.go_push()
-    assert self.app.actor.x == 3,self.app.actor.x
-    assert isinstance(self.app.plan[1][B], Door),self.app.plan[1][B]
-    assert isinstance(self.app.plan[1][B].thing, Place),self.app.plan[1][B].thing
-    assert self.app.plan[1][A].thing == self.app.actor,self.app.plan[1][A].thing 
-    assert isinstance(self.app.plan[1][A].thing.thing, Way),self.app.plan[1][A].thing.thing
+    self._check_after_move(A,B)
 
   def testa_push_trunk(self):
     "push trunk"
@@ -116,23 +118,19 @@ class TestPyjama(mocker.MockerTestCase):
     #expect(self.ma.get_direction()).result(1)
     expect(self.ma.move(ARGS))
     expect(self.ma.move(ARGS))
-    self._replay_and_create_place('.&%.')
+    self._replay_and_create_place('.&$.')
     B, A, P = 2,3, 4
-    assert isinstance(self.app.plan[1][A], Way),self.app.plan[1][B]
+    assert isinstance(self.app.plan[1][A], Way),self.app.plan[1][A]
     assert isinstance(self.app.plan[1][B].thing, Place),self.app.plan[1][B].thing
     assert isinstance(self.app.plan[1][A].place, Place),self.app.plan[1][B].place
     assert isinstance(self.app.plan[1][A].thing, Trunk),self.app.plan[1][B].thing
     assert isinstance(self.app.plan[1][A].thing.place, Way),self.app.plan[1][B].thing.place
-    assert self.app.plan[1][A].thing.place.x==3,self.app.plan[1][A].thing.place.x
+    assert self.app.plan[1][A].thing.place.x==A,self.app.plan[1][A].thing.place.x
     #return
     self.app.actor.go_push()
-    assert self.app.actor.x == 3,self.app.actor.x
-    assert isinstance(self.app.plan[1][B], Door),self.app.plan[1][B]
-    assert isinstance(self.app.plan[1][B].thing, Place),self.app.plan[1][B].thing
-    assert self.app.plan[1][A].thing == self.app.actor,self.app.plan[1][A].thing 
-    assert isinstance(self.app.plan[1][A].thing.thing, Way),self.app.plan[1][A].thing.thing
+    self._check_after_move(A,B)
     assert isinstance(self.app.plan[1][P].thing, Trunk),self.app.plan[1][P].thing
-    assert False
+    #assert False
     
 '''
     
