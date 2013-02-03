@@ -50,7 +50,7 @@ class TestPyjama(mocker.MockerTestCase):
     expect(self.mg.avatar()).result(self.ma)
     expect(self.mg.handler(ARGS)).count(1,6)
     expect(self.ma.move(ARGS))
-    expect(self.mg(ARGS)).count(1,96)
+    expect(self.mg(ARGS)).count(1,96).result(self.ma)
   def _replay_and_create_place(self,p = '.&.'):
     "create place"
     self.mock_gui.replay()
@@ -59,7 +59,6 @@ class TestPyjama(mocker.MockerTestCase):
     "create place"
     self._expect_all_place()
     self._replay_and_create_place()
-
   def testa_move_forward(self):
     "move forward"
     self._expect_all_place()
@@ -95,7 +94,49 @@ class TestPyjama(mocker.MockerTestCase):
     assert self.app.plan[1][A].thing == self.app.actor,self.app.plan[1][A].thing 
     assert isinstance(self.app.plan[1][A].thing.thing, Door),self.app.plan[1][A].thing.thing
     
+  def testa_push_forward(self):
+    "push forward"
+    self._expect_all_place()
+    expect(self.ma.get_direction()).result(1)
+    expect(self.ma.move(ARGS))
+    self._replay_and_create_place()
+    B, A = 2,3
+    assert isinstance(self.app.plan[1][B].thing, Place),self.app.plan[1][B].thing
+    self.app.actor.go_push()
+    assert self.app.actor.x == 3,self.app.actor.x
+    assert isinstance(self.app.plan[1][B], Door),self.app.plan[1][B]
+    assert isinstance(self.app.plan[1][B].thing, Place),self.app.plan[1][B].thing
+    assert self.app.plan[1][A].thing == self.app.actor,self.app.plan[1][A].thing 
+    assert isinstance(self.app.plan[1][A].thing.thing, Way),self.app.plan[1][A].thing.thing
 
+  def testa_push_trunk(self):
+    "push trunk"
+    self._expect_all_place()
+    expect(self.ma.get_direction()).count(1,6).result(1)
+    #expect(self.ma.get_direction()).result(1)
+    expect(self.ma.move(ARGS))
+    expect(self.ma.move(ARGS))
+    self._replay_and_create_place('.&%.')
+    B, A, P = 2,3, 4
+    assert isinstance(self.app.plan[1][A], Way),self.app.plan[1][B]
+    assert isinstance(self.app.plan[1][B].thing, Place),self.app.plan[1][B].thing
+    assert isinstance(self.app.plan[1][A].place, Place),self.app.plan[1][B].place
+    assert isinstance(self.app.plan[1][A].thing, Trunk),self.app.plan[1][B].thing
+    assert isinstance(self.app.plan[1][A].thing.place, Way),self.app.plan[1][B].thing.place
+    assert self.app.plan[1][A].thing.place.x==3,self.app.plan[1][A].thing.place.x
+    #return
+    self.app.actor.go_push()
+    assert self.app.actor.x == 3,self.app.actor.x
+    assert isinstance(self.app.plan[1][B], Door),self.app.plan[1][B]
+    assert isinstance(self.app.plan[1][B].thing, Place),self.app.plan[1][B].thing
+    assert self.app.plan[1][A].thing == self.app.actor,self.app.plan[1][A].thing 
+    assert isinstance(self.app.plan[1][A].thing.thing, Way),self.app.plan[1][A].thing.thing
+    assert isinstance(self.app.plan[1][P].thing, Trunk),self.app.plan[1][P].thing
+    assert False
+    
+'''
+    
+'''
 
 if __name__ == '__main__':
     import unittest

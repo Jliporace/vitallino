@@ -151,7 +151,9 @@ class Sprite:
         self.avatar.setAttribute("visibility",'visible')
     def move(self, place,x,y):
         self.place, self.x, self.y = place, x, y
-        self._show(*place.get_position(x=x,y=y))
+        mx, my = place.get_position(x=x,y=y)
+        print( '%s,spr_move, position %d %d  real %d %d'%(place, x, y, mx, my))
+        self._show(mx, my)
     def __init__(self,gui, img, place, x, y):
         self.avatar = gui.image(href=REPO%img,
                     x=100,y=100, width=32,height=32)

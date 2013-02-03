@@ -23,7 +23,7 @@ def inherit(base, child):
     for member in inherited:
         if member not in overriden:
             setattr(child, member, getattr(base,member))
-    child.m =  str(child.__class__)
+    #child.m =  str(child.__class__)
     return base
 
 #class Entrance:
@@ -35,10 +35,16 @@ class Way:
         #inherit(Entrance(place, x, y),self)
         self.avatar,self.place = avatar, place
         self.thing, self.x, self.y, self.m = place, x, y, me or self
+    def rebase(self,base):
+        return None
+    def get_position(self,x=0,y=0):
+        return self.place.get_position(x=x,y=y)
+    def _support(self):
+        self.place = Way(None,self.place, self.x, self.y)
     def enter(self,entry, action, position=None):
         self._action, thing, x, y = action, self.thing, self.x,self.y
         def _move(x, y, entry, act = action, me=self.m):
-            me.thing = entry
+            me.thing = entry.get_entry()
             print( '%s._move, position %d %d thing %s'%(me, x, y, me.thing))
             act( self.x, self.y, me)
         pos= (x, y)
@@ -46,96 +52,99 @@ class Way:
             position = pos
         thing.enter(entry, action=_move, position = position)
         print( '%s.enter,thing %s self %s position %s'%(self.m, self.thing, self, position))
-    def get_position(self,x=0,y=0):
-        return self.place.get_position(x=x,y=y)
-    def _support(self):
-        self.place = Way(None,self.place, self.x, self.y)
     def leave(self,entry, action, reverse =0):
-        #locus = self.place.get_next(entry,reverse =reverse)
         def _left(x, y, loc, act = action, me=self.m):
             me.thing = self.place
             act( x, y, loc)
-        #print( '%s.leave locus %s lpos %d %d'%(self.m, locus, locus.x,locus.y))
         self.place.leave(entry, action = _left, reverse=reverse)
-        #locus.enter(entry, action = _left, position =(locus.x,locus.y))
+    def pushed(self,entry, action, position=None, reverse=0):
+        self._action, thing, x, y = action, self.thing, self.x,self.y
+        def _tpushed(x, y, entry, act = action, me=self.m):
+            me.thing = entry.get_entry()
+            print( '%s._tpushed, position %d %d thing %s'%(me, x, y, me.thing))
+            act( self.x, self.y, me)
+        thing.pushed(entry, action=_tpushed, position = position, reverse=reverse)
+        print( '%s.enter,thing %s self %s position %s'%(self.m, self.thing, self, position))
     def push(self,entry, action, reverse =0):
-        self._pusher = action
-        self.thing.get_next(entry,reverse =reverse)
-        print( '%s.leave locus %s lpos %d %d'%(self.m, locus, locus.x,locus.y))
-        self.thing.push(entry, action = self._push, position =(locus.x,locus.y))
+        def _pusher_moved(x, y, loc, move_pusher = action, me=self.m):
+            me.thing = self.place
+            move_pusher( x, y, loc)
+        print( '%s.push entry %s lpos %d %d'%('Place', entry, self.x,self.y))
+        self.place.push(entry, action = _pusher_moved, reverse=reverse)
 
 class Tar:
-    def __init__(self, avatar, place, x, y, **kw):
-        inherit(Way(avatar, place, x, y, me=self),self)
     def leave(self,thing, action, reverse =0):
         print('Youre STUCK!!!')
-        pass
+    def __init__(self, avatar, place, x, y, **kw):
+        inherit(Way(avatar, place, x, y, me=self),self)
 
 class Door:
     def __init__(self, avatar, place, x, y, **kw):
         inherit(Way(avatar, place, x, y, me=self),self)
         place.x, place.y =  x, y
 
-class Trunk:
+class Entry:
+    def __init__(self, thing, entry, x, y):
+        self.x, self.y, self.entry, self.thing = x, y, entry, thing
+    def get_entry(self):
+        return self.thing
     def get_direction(self):
-        return self.locus.get_direction()
+        return self.entry.get_direction()
     def get_position(self):
         return (self.x, self.y)
-    def move(self, x, y, entry= None):
-        self.x, self.y = x, y
-        self.thing = entry or self.thing
-        ##print( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
-        avatar = self.avatar
-        mx, my = self.thing.get_position(x=x, y=y)
-        print( 'actor,move, position %d %d  entry%s real %d %d'%(x, y, entry, mx, my))
-        avatar.move(mx, my)
-    def _pushed(self, x, y , entry):
-        #self.thing = self.place
-        self._pusher( x, y, self.locus)
+
+class Trunk:
     def enter(self,entry, action, position=None):
         print('It is HEAVY!!')
-    def push(self,entry, action, reverse =0):
-        print('It iiiiiiiiiiis HEAVY!!')
-        #print( '%s.pushtrunk locus %s lpos %d %d'%(self.m, entry, entry.x,entry.y))
-        #self.locus = entry
-        #self._pusher = action
-        #self.thing.push(self, self._pushed, reverse =reverse)
+    def pushed(self,entry, action, position=None, reverse=1):
+        def _trunk_pushed(x, y, loc, move_pusher = action, me=self.m):
+            self.x, self.y, self.thing = x, y, loc or self.thing
+            self.place, previous_location = loc or self.place, self.place
+            previous_location.thing= entry
+            mx, my = self.thing.get_position(x=x, y=y)
+            px,py = previous_location.get_position(x=x, y=y)
+            print( 'trunk.pushed, me %s position %d %d  entry%s real %d %d'%(me, x, y, loc, mx, my))
+            me.avatar.move(me, x, y)
+            #move_pusher(px,py, previous_location)
+            previous_location.place.enter(entry, action=move_pusher, position = position)
+        theentry = Entry(self.m, entry, self.x, self.y)
+        print( '%s.pushed,thing %s entry %s position %s'%(
+            self.m, self.thing, theentry, position))
+        self.place.place.push(theentry, action=_trunk_pushed, reverse = reverse)
         
     def __init__(self, avatar, place, x, y, **kw):
-        #self.push = self._push
-        print ('Trunk:', dir(self))
-        #baser = inherit(Way(avatar, place, x, y),self)
-        baser = Way(avatar, place, x, y, me=self)
-        for member in dir (baser):
-            if member not in dir(self):
-                print(member)
-                setattr(self, member, getattr(baser,member))
-        self.thing, self.x, self.y, self.m = place, x, y, str(self.__class__)
-        #self.place = Way(None,place, self.x, self.y)
-        #self.push = self._push
+        inherit(Way(avatar, place, x, y, me=self),self)
+        self.avatar,self.place = avatar, place
+        self.thing, self.x, self.y, self.m = place, x, y, self
+    def rebase(self,base):
+        place = Way(None,self, self.x, self.y)
+        base[self.y][self.x]= place
+        self.place, self.place.place = place, self.place
+        
 
 class Border:
     def enter(self,entry, action, position=None):
         print('Cant go this way!!')
     def __init__(self, avatar, place, x, y, **kw):
         inherit(Way(avatar, place, x, y, me=self),self)
-        self.thing, self.x, self.y, self.m = place, x, y, str(self.__class__)
+        self.thing, self.x, self.y, self.m = place, x, y, self
         self.place = Way(None,place, self.x, self.y)
         #self.avatar,self.place, self.x, self.y = avatar, place, x, y
-        #self.thing = self.place
 
 class Actor:
+    def get_entry(self):
+        return self
     def get_direction(self):
-        return self.avatar.heading
+        return self.avatar.get_direction()
     def get_position(self):
         return (self.x, self.y)
-    def move(self, x, y, entry= None):
+    def move(self, x, y, loc = None):
         self.x, self.y = x, y
-        self.thing = entry or self.thing
+        self.thing = loc or self.thing
         ##print( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
         avatar = self.avatar
         mx, my = self.thing.get_position(x=x, y=y)
-        print( 'actor,move, position %d %d  entry%s real %d %d'%(x, y, entry, mx, my))
+        print( 'actor,move, position %d %d  entry%s real %d %d'%(x, y, loc, mx, my))
         avatar.move(mx, my)
     def go_backward(self):
         self.thing.leave(self, action=self.move, reverse=2)
@@ -146,7 +155,7 @@ class Actor:
     def go_give(self):
         self.thing.leave(self, action=self.move)
     def go_pull(self):
-        self.thing.leave(self, action=self.move, reverse=2)
+        self.thing.push(self, action=self.move, reverse=2)
     def go_push(self):
         self.thing.push(self, action=self.move)
     def __init__(self, avatar, place, x, y, **kw):
@@ -173,7 +182,7 @@ class Inventory:
             , '@':[Tar,FS,'piche.gif'], '%':[Trunk,FS,'tronco.gif']}
         return invent
 
-SIMPLE = ('@%&......'+'.'*10+('\n'+'.'*19)*12)
+SIMPLE = ('@.%&.....'+'.'*10+('\n'+'.'*19)*12)
 #p = [['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)] for y, row in enumerate(border)]
 
 class Place:
@@ -181,11 +190,16 @@ class Place:
         return (x * 32 + 100 - 32, y * 32 + 100 -32)
     def get_next(self,thing, reverse =0):
         x, y = thing.get_position()
-        dx, dy = WIND[thing.avatar.get_direction() - reverse]
+        dx, dy = WIND[thing.get_direction() - reverse]
         self.pos = (x+dx, y+dy)
         px, py = self.pos
         locus = self.plan[py][px]
         return locus
+    def pushed(self,thing, action, position=None,reverse =0):
+        ##print( 'place,enter,thing position %s %s'%(thing, position))
+        x,y = position #or (self.x, self.y)
+        ##print( 'place,enter, position %d %d'%(x, y))
+        action( x, y, thing)
     def enter(self,thing, action, position=None):
         ##print( 'place,enter,thing position %s %s'%(thing, position))
         x,y = position #or (self.x, self.y)
@@ -197,10 +211,15 @@ class Place:
             act( x, y,  loc = loc)
         print( '%s.leave locus %s lpos %d %d'%('Place', locus, locus.x,locus.y))
         locus.enter(entry, action =_left, position =(locus.x,locus.y))
+    def push(self,entry, action, reverse =0):
+        locus = self.get_next(entry,reverse =reverse)
+        def _ppushed(x, y, entry, act = action, loc = locus):
+            act( x, y,  loc = loc)
+        print( '%s.push locus %s lpos %d %d'%('Place', locus, locus.x,locus.y))
+        locus.pushed(entry, action =_ppushed, position =(locus.x,locus.y),reverse =reverse)
     def __init__(self, gui, inventory, plan =SIMPLE, **kw):
         self.gui = gui
         self._load(plan, gui, inventory)
-        self.push = self.enter
         x, y = self.x, self.y
         actor = Actor(gui.avatar(), self, x, y )
         self.actor = actor
@@ -224,6 +243,8 @@ class Place:
         self.plan = []
         for y,row in enumerate(border):
             self.plan += [line(y,row)]
+            for x,cell in enumerate(self.plan[y]):
+                cell.rebase(self.plan)
         ##print(self.plan)
         plan = self.plan
         print ([(p[1],p[1].x) for p in plan])
