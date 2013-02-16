@@ -9,11 +9,13 @@ Vitallino - Criador de Jogos Simplificado
 :Status: This is a "work in progress"
 :Revision: $Revision: 0.1 $
 :Home: `Labase http://labase.nce.ufrj.br/`__
-:Copyright: ©2011, `GPL http://is.gd/3Udt`__. 
+:Copyright: 2011, `GPL http://is.gd/3Udt`__. 
 __author__  = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
 __version__ = "0.1 $Revision$"[10:-1]
 __date__    = "2013/01/09 $Date$"
 """
+REPO = 'public/image/%s'
+
 def noop(nop=''):
     pass
 HANDLER = {"_NOOP_":'noop()'}
@@ -39,6 +41,8 @@ class GUI:
     def __init__(self,panel):
         self.args = {}
         self.panel =panel
+        for child in panel: # iteration on child nodes
+                panel.remove(child)
         
     def get_args(self):
         args = self.args
@@ -158,3 +162,9 @@ class Sprite:
         self.avatar = gui.image(href=REPO%img,
                     x=100,y=100, width=32,height=32)
         self.move(place, x, y)
+    
+class NullSprite:
+    def move(self, place,x,y):
+        pass
+    def __init__(self, *a):
+        pass
