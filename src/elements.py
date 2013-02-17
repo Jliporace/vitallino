@@ -15,7 +15,7 @@ __version__ = "0.2 $Revision$"[10:-1]
 __date__    = "2013/02/09 $Date$"
 """
 if '__package__' in dir():
-    from parts import Cell
+    #from parts import Cell
     pass
     
 def inherit(base, child):
@@ -58,41 +58,35 @@ class Trunk:
         return self.avatar.get_direction()
     def get_position(self,x=0, y=0):
         return (self.x, self.y)
-    def enter(self,entry, action, position=None):
+    def enter(self,entry, destination ):
         print('It is HEAVY!!')
-    def move(self, x, y, loc = None):
+    def _move(self, loc):
         self.place.clear()
-        self.x, self.y, loc.thing, self.thing = x, y, self, loc or self.thing
+        self.x, self.y, loc.thing, self.thing = loc.x, loc.y, self, loc or self.thing
         self.place = loc
         ##print( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
         avatar = self.avatar
-        mx, my = self.place.get_position(x=x, y=y)
-        print( 'trunk.move, position %d %d  entry%s real %d %d'%(x, y, loc, mx, my))
+        mx, my = self.thing.get_real_position(x=loc.x, y=loc.y)
+        print( 'trunk.move, position %d %d  entry%s real %d %d'%(loc.x, loc.y, loc, mx, my))
         avatar.move(mx, my)
-    def pushed(self,entry, action, position=None, reverse=1):
-        def _trunk_pushed(x, y, loc, move_pusher = action, me=self.m):
-            place = self.place
-            self.move(x,y,loc)
-            place.enter(entry, action=move_pusher, position = position)
-        print( '%s.pushed,thing %s entry %s position %s'%(
-            self.m, self.thing, entry, position))
-        self.place.place.push(self, action=_trunk_pushed, reverse = reverse)
-        
-    def _pushed(self,entry, action, position=None, reverse=1):
-        def _trunk_pushed(x, y, loc, move_pusher = action, me=self.m):
-            self.x, self.y, self.thing = x, y, loc or self.thing
-            self.place, previous_location = loc or self.place, self.place
-            previous_location.thing= entry
-            mx, my = self.thing.get_position(x=x, y=y)
-            px,py = previous_location.get_position(x=x, y=y)
-            print( 'trunk.pushed, me %s position %d %d  entry%s real %d %d'%(me, x, y, loc, mx, my))
-            me.avatar.move(me, x, y)
-            #move_pusher(px,py, previous_location)
-            previous_location.place.enter(entry, action=move_pusher, position = position)
-        theentry = Entry(self.m, entry, self.x, self.y)
-        print( '%s.pushed,thing %s entry %s position %s'%(
-            self.m, self.thing, theentry, position))
-        self.place.place.push(theentry, action=_trunk_pushed, reverse = reverse)
+    def move_entry(self,loc):
+        pass
+    def null_move_entry(self,loc):
+        pass
+    def move(self, loc):
+        place = self.place
+        self._move(loc)
+        self.move_entry(place)
+    def taken(self,entry, destination):
+        entry.take(self)
+    def pushed(self,entry, destination ):
+        def _move_entry(loc, entry= entry, self= self):
+            entry.move(loc)
+            self.move_entry = self.null_move_entry
+        self.move_entry = _move_entry
+        print( '%s(trunk).pushed,thing %s entry %s destination %s direction %s'%(
+            self.m, self.thing, entry, destination, entry.heading))
+        self.thing.push(self, entry.heading)
         
     def __init__(self, avatar, place, x, y, **kw):
         inherit(Cell(avatar, place, x, y, me=self),self)
@@ -105,9 +99,9 @@ class Trunk:
         self.place = place
 
 class Border:
-    def enter(self,entry, action, position=None):
+    def enter(self,entry, destination ):
         print('Cant go this way!!')
-    def pushed(self,entry, action, position=None):
+    def pushed(self,entry, destination ):
         print('Cant go this way!!')
     def __init__(self, avatar, place, x, y, **kw):
         inherit(Cell(avatar, place, x, y, me=self),self)

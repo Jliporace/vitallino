@@ -67,17 +67,29 @@ class TestMain(mocker.MockerTestCase):
     assert isinstance(self.app.plan[1][B].place, Place),self.app.plan[1][B].place
     assert isinstance(self.app.plan[1][B].thing.place, Way),self.app.plan[1][B].thing.place
 
-  def _check_after_move(self,A,B,C=Way,D=Door):
+  def _check_after_take(self,A,B,P=Place, T= Trunk):
+    assert isinstance(self.app.plan[1][A], Way),self.app.plan[1][A]
+    assert isinstance(self.app.plan[1][A].place, Place),self.app.plan[1][A].place
+    assert isinstance(self.app.plan[1][A].thing, P),self.app.plan[1][A].thing
+    assert isinstance(self.app.plan[1][B].thing.place, Door),self.app.plan[1][B].thing.place
+    assert self.app.plan[1][B].thing.thing.x==B,self.app.plan[1][B].thing.thing.x
+    assert self.app.plan[1][B].thing.x==B,self.app.plan[1][B].thing.x
+    assert isinstance(self.app.plan[1][B].thing, Actor),self.app.plan[1][B].thing
+    assert isinstance(self.app.plan[1][B].place, Place),self.app.plan[1][B].place
+    assert isinstance(self.app.plan[1][B].thing.place, Door),self.app.plan[1][B].thing.place
+    assert isinstance(self.app.plan[1][B].thing.thing, T),self.app.plan[1][B].thing
+
+  def _check_after_move(self,A,B,C=Way,D=Door, P= Place):
     assert self.app.actor.x == A,self.app.actor.x
-    assert self.app.actor.thing == self.app.plan[1][A],self.app.actor.thing
+    assert self.app.actor.thing == self.app.plan[1][A].place,self.app.actor.thing
     assert self.app.actor.place == self.app.plan[1][A],self.app.actor.place
     assert isinstance(self.app.plan[1][B], D),self.app.plan[1][B]
-    assert isinstance(self.app.plan[1][B].thing, Place),self.app.plan[1][B].thing
+    assert isinstance(self.app.plan[1][B].thing, P),self.app.plan[1][B].thing
     assert isinstance(self.app.plan[1][B].place, Place),self.app.plan[1][B].place
     assert isinstance(self.app.plan[1][A], C),self.app.plan[1][A]
     assert self.app.plan[1][A].thing == self.app.actor,self.app.plan[1][A].thing 
     assert isinstance(self.app.plan[1][A].thing, Actor),self.app.plan[1][A].thing
-    assert isinstance(self.app.plan[1][A].thing.thing, C),self.app.plan[1][A].thing.thing
+    assert isinstance(self.app.plan[1][A].thing.thing, Place),self.app.plan[1][A].thing.thing
   def _replay_and_create_place(self,p = '.&.'):
     "create place"
     self.mock_gui.replay()
@@ -97,6 +109,16 @@ class TestMain(mocker.MockerTestCase):
     assert isinstance(self.app.plan[1][B].thing, Actor),self.app.plan[1][B].thing
     self.app.actor.go_forward()
     self._check_after_move(A,B,C=Way,D=Door)
+  def testa_cant_move_forward(self):
+    "cant move forward"
+    self._expect_all_place()
+    expect(self.ma.get_direction()).result(1)
+    expect(self.ma.move(ARGS))
+    self._replay_and_create_place('.&')
+    B, A = 2,2
+    assert isinstance(self.app.plan[1][B].thing, Actor),self.app.plan[1][B].thing
+    self.app.actor.go_forward()
+    self._check_after_move(A,B,C=Door,D=Door, P=Actor)
   def testa_move_forward_and_back(self):
     "move forward and back"
     self._expect_all_place()
@@ -113,6 +135,32 @@ class TestMain(mocker.MockerTestCase):
     print('NOW MOVING BACK')
     self.app.actor.go_backward()
     self._check_after_move(A,B,D=Way,C=Door)
+  def testa_take_forward(self):
+    "take forward"
+    self._expect_all_place()
+    expect(self.ma.get_direction()).result(1)
+    expect(self.ma.move(ARGS))
+    self._replay_and_create_place('.&$.')
+    B, A = 2,3
+    assert isinstance(self.app.plan[1][B].thing, Actor),self.app.plan[1][B].thing
+    self.app.actor.go_take()
+    self._check_after_take(A,B)
+    assert isinstance(self.app.plan[1][B].thing.thing.place, Actor),self.app.plan[1][B].place
+  def testa_give_forward(self):
+    "give forward"
+    self._expect_all_place()
+    expect(self.ma.get_direction()).count(1,2).result(1)
+    expect(self.ma.move(ARGS)).count(1,2)
+    self._replay_and_create_place('.&$.')
+    B, A = 2,3
+    assert isinstance(self.app.plan[1][B].thing, Actor),self.app.plan[1][B].thing
+    self.app.actor.go_take()
+    self._check_after_take(A,B)
+    assert isinstance(self.app.plan[1][B].thing.thing.place, Actor),self.app.plan[1][B].place
+    print('NOW GIVING BACK')
+    self.app.actor.go_give()
+    self._check_after_take(A,B,P=Trunk, T=Place)
+    assert self.app.plan[1][A].thing.x == A,self.app.plan[1][A].thing.x
     
   def testa_push_forward(self):
     "push forward"
@@ -132,12 +180,12 @@ class TestMain(mocker.MockerTestCase):
     expect(self.ma.move(ARGS)).count(1,2)
     self._replay_and_create_place('.&$.')
     B, A, P = 2,3, 4
-    assert isinstance(self.app.plan[1][B].thing.place, Way),self.app.plan[1][B].thing.place
+    assert isinstance(self.app.plan[1][B].thing.place, Door),self.app.plan[1][B].thing.place
     self.app.actor.go_push()
     self._check_after_move(A,B)
     B, A, P = 3, 4, 5
     self._check_after_push(A,B)
-  def testa_push_trunk_twice(self):
+  def ntesta_push_trunk_twice(self):
     "push trunk twice"
     self._expect_all_place()
     expect(self.ma.get_direction()).count(1,6).result(1)
