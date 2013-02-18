@@ -15,7 +15,7 @@ __version__ = "0.2 $Revision$"[10:-1]
 __date__    = "2013/02/09 $Date$"
 """
 if '__package__' in dir():
-    #from parts import Cell
+    from parts import Cell
     pass
     
 def inherit(base, child):
@@ -77,6 +77,8 @@ class Trunk:
         place = self.place
         self._move(loc)
         self.move_entry(place)
+    def give(self,entry, direction):
+        self.thing.given(self, direction)
     def taken(self,entry, destination):
         entry.take(self)
     def pushed(self,entry, destination ):

@@ -35,8 +35,8 @@ class Cell:
     def clear(self):
         print( '%s.clear, position %d %d thing, place %s %s'%(
             self.m, self.x, self.y, self.thing, self.place ))
-        self.thing = self.place
-        self.m.thing = self.place
+        self.thing = PLACE #self.place
+        self.m.thing = PLACE # self.place
     def get_real_position(self,x=0,y=0):
         return self.place.get_position(x=x,y=y)
     def get_position(self,x=0,y=0):
@@ -123,14 +123,16 @@ class Place:
         locus = self.plan[py][px]
         return locus
     def taken(self,entry, destination):
-        entry.take(destination)
+        print('nothing here!')
+        #entry.take(destination)
     def take(self,entry, direction):
         locus = self.get_next(entry, direction)
         print( '%s.take locus %s entry %s dir %d lpos %d %d'%(
             'Place', locus, entry, direction, locus.x,locus.y))
         locus.taken(entry, locus)
     def given(self,entry, destination):
-        entry.give(destination)
+        print('nothing here!')
+        #entry.give(destination)
     def give(self,entry, direction):
         locus = self.get_next(entry, direction)
         print( '%s.give locus %s entry %s dir %d lpos %d %d'%(

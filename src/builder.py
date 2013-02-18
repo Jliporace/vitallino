@@ -15,8 +15,8 @@ __version__ = "0.1 $Revision$"[10:-1]
 __date__    = "2013/02/09 $Date$"
 """
 if '__package__' in dir():
-    #from parts import Actor, Place
-    #from elements import *
+    from parts import Actor, Place
+    from elements import *
     pass
     
 class NullSprite:
@@ -48,8 +48,9 @@ class Builder:
             #x = ['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)]
             PART, ICON, IMGE  = 0, 1, 2
             #me = self.place
+            enum_row = enumerate(' %s '%row)
             x = [IV[p][PART](IV[p][ICON](gui, IV[p][IMGE],me,x,y),me,x,y)
-                for x, p in enumerate(' %s '%row)]
+                for x, p in enum_row]
             return x
         self.place = Place([])
         w = len(plan.split('\n')[0])
