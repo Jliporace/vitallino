@@ -62,7 +62,7 @@ class Trunk:
         print('It is HEAVY!!')
     def _move(self, loc):
         self.place.clear()
-        self.x, self.y, loc.thing, self.thing = loc.x, loc.y, self, loc or self.thing
+        self.x, self.y, loc.thing = loc.x, loc.y, self
         self.place = loc
         ##print( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
         avatar = self.avatar
@@ -77,8 +77,11 @@ class Trunk:
         place = self.place
         self._move(loc)
         self.move_entry(place)
-    def give(self,entry, direction):
-        self.thing.given(self, direction)
+    def given(self,entry, destination):
+        self._move(destination)
+        #self.thing.give(self, destination)
+    def give(self, entry, direction):
+        self.thing.give(self, direction)
     def taken(self,entry, destination):
         entry.take(self)
     def pushed(self,entry, destination ):
@@ -98,6 +101,7 @@ class Trunk:
         place = Way(None,self, self.x, self.y)
         base[self.y][self.x]= place
         place.place = self.place
+        place.thing = self
         self.place = place
 
 class Border:

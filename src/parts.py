@@ -16,6 +16,7 @@ __date__    = "2013/02/09 $Date$"
 """
 WIND=[(0,-1),(1,0),(0,1),(-1,0)]
 PLACE = None
+NOTHING = None
 
 def inherit(base, child):
     overriden, inherited = dir(child), dir(base)
@@ -28,10 +29,12 @@ def inherit(base, child):
 class Cell:
     def __init__(self, avatar, place, x, y, me=None, **kw):
         #inherit(Entrance(place, x, y),self)
-        self.avatar,self.place = avatar, place
+        self.avatar,self.place = avatar, PLACE
         self.thing, self.x, self.y, self.m = place, x, y, me or self
     def rebase(self,base):
         return None
+    def move(self, loc):
+        print('nothing here, just dust!')
     def clear(self):
         print( '%s.clear, position %d %d thing, place %s %s'%(
             self.m, self.x, self.y, self.thing, self.place ))
@@ -52,8 +55,8 @@ class Cell:
     def push(self,entry, direction):
         self.place.push(entry, direction)
     def taken(self,entry, destination):
-        self.thing.taken(entry, destination)
         print( '%s.taken,thing %s self %s destination %s'%(self.m, self.thing, self, destination))
+        self.thing.taken(entry, destination)
     def take(self,entry, direction):
         self.place.take(entry, direction)
     def given(self,entry, destination):
@@ -66,7 +69,7 @@ class Actor:
     def clear(self):
         print( '%s.clear, position %d %d thing, place %s %s'%(
             self, self.x, self.y, self.thing, self.place ))
-        self.thing = self.place.place
+        self.thing = NOTHING
     def get_entry(self):
         return self
     def get_direction(self, back= False):
@@ -106,8 +109,23 @@ class Actor:
     def __init__(self, avatar, place, x, y, **kw):
         print( 'actor,init',avatar, place, x, y)
         self.avatar, self.place, self.x, self.y = avatar, place, x, y
-        self.thing = place.place
+        self.thing = NOTHING
         print( 'actor,init %d %d %s'%(self.x, self.y, dir(self.thing)))
+        
+class Nothing:
+    def __init__(self, place):
+        global NOTHING
+        inherit(place,self)
+        NOTHING = self
+        self.place = place
+    def give(self,entry, direction):
+        print('nothing here, bare!')
+    def ntaken(self,entry, destination):
+        print('nothing here!')
+        #entry.take(destination)
+    def ngiven(self,entry, destination):
+        print('nothing here!')
+        #entry.give(destination)
     
 class Place:
     def clear(self):
@@ -115,6 +133,8 @@ class Place:
         pass
     def get_position(self,x=0,y=0):
         return (x * 32 + 100 - 32, y * 32 + 100 -32)
+    def get_real_position(self,x=0,y=0):
+        return self.get_position(x=x,y=y)
     def get_next(self, thing, direction):
         x, y = thing.get_position()
         dx, dy = WIND[direction]
@@ -123,16 +143,16 @@ class Place:
         locus = self.plan[py][px]
         return locus
     def taken(self,entry, destination):
-        print('nothing here!')
-        #entry.take(destination)
+        #print('nothing here!')
+        entry.take(destination)
     def take(self,entry, direction):
         locus = self.get_next(entry, direction)
         print( '%s.take locus %s entry %s dir %d lpos %d %d'%(
             'Place', locus, entry, direction, locus.x,locus.y))
         locus.taken(entry, locus)
     def given(self,entry, destination):
-        print('nothing here!')
-        #entry.give(destination)
+        print('place',entry, destination)
+        entry.given(entry, destination)
     def give(self,entry, direction):
         locus = self.get_next(entry, direction)
         print( '%s.give locus %s entry %s dir %d lpos %d %d'%(
@@ -156,3 +176,4 @@ class Place:
         global PLACE
         PLACE = self
         self.plan = plan
+        self.nothing = Nothing(self)
