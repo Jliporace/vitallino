@@ -86,5 +86,5 @@ class Builder:
     def build_inventory(self, FS = NullSprite):
         ES = NullSprite
         return {'.':[Way,ES,None], ' ': [Border,ES,None], '&':[Door,ES,None]
-        , '@':[Tar,FS,'piche.gif'], '$':[Trunk,FS,'tronco.gif']}
+        , '@':[Tar,FS,'piche.gif'], '$':[Trunk,FS,'tronco.gif'], '*':[Rock,FS,'pedra.gif']}
     

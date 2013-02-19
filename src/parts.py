@@ -139,7 +139,7 @@ class Nothing:
         pass
     
 class Place:
-    def clear(self):
+    def clear(self, load=None):
         print( 'ERROR, SHOUlD NOT CALL')
         pass
     def get_position(self,x=0,y=0):

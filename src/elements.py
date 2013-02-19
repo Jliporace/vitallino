@@ -54,6 +54,10 @@ class Entry:
         return (self.x, self.y)
 
 class Trunk:
+    def clear(self, load= None):
+        print( '%s.clear, position %d %d thing %s load %s'%(
+            self.m, self.x, self.y, self.thing, load ))
+        self.thing = load or PLACE#self.place
     def reset(self):
         self.move_entry = self.null_move_entry
         self.entry.reset()
@@ -75,7 +79,8 @@ class Trunk:
         ##print( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
         avatar = self.avatar
         mx, my = self.thing.get_real_position(x=loc.x, y=loc.y)
-        print( 'trunk.move, position %d %d  entry%s real %d %d'%(loc.x, loc.y, loc, mx, my))
+        print( '%s(trunk).move, position %d %d  entry%s real %d %d'%(
+            self.m,loc.x, loc.y, loc, mx, my))
         avatar.move(mx, my)
     def move_entry(self,loc):
         pass
@@ -102,7 +107,64 @@ class Trunk:
         print( '%s(trunk).pushed,thing %s entry %s destination %s direction %s'%(
             self.m, self.thing, entry, destination, entry.heading))
         self.thing.push(self, entry.heading)
-        
+    def __init__(self, avatar, place, x, y, **kw):
+        inherit(Cell(avatar, place, x, y, me=self),self)
+        self.avatar,self.place = avatar, place
+        self.thing, self.x, self.y, self.m = place, x, y, self
+    def rebase(self,base):
+        place = Way(None,self, self.x, self.y)
+        base[self.y][self.x]= place
+        place.place = self.place
+        place.thing = self
+        self.place = place
+
+class Rock:
+    def clear(self, load= None):
+        print( '%s.clear, position %d %d thing %s load %s'%(
+            self.m, self.x, self.y, self.thing, load ))
+        self.thing = load or PLACE#self.place
+    def reset(self):
+        self.move_entry = self.null_move_entry
+        self.entry.reset()
+    def get_direction(self):
+        return self.avatar.get_direction()
+    def get_position(self,x=0, y=0):
+        return (self.x, self.y)
+    def _move(self, loc):
+        self.place.clear()
+        self.x, self.y = loc.x, loc.y
+        self.place = loc
+        loc.clear(self)
+        ##print( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
+        avatar = self.avatar
+        mx, my = self.thing.get_real_position(x=loc.x, y=loc.y)
+        print( '%s(rock).move, position %d %d  entry%s real %d %d'%(
+            self.m,loc.x, loc.y, loc, mx, my))
+        avatar.move(mx, my)
+    def move_entry(self,loc):
+        pass
+    def null_move_entry(self,loc):
+        pass
+    def move(self, loc):
+        place = self.place
+        self._move(loc)
+        self.move_entry(place)
+    def taken(self,entry, destination):
+        print('Too much Heavy to take!!')
+        entry.reset()
+    def enter(self,entry, destination ):
+        print('It is HEAVY!!')
+        entry.reset()
+    def pushed(self,entry, destination ):
+        def _move_entry(loc, entry= entry, self= self):
+            entry.move(loc)
+            self.move_entry = self.null_move_entry
+        self.move_entry = _move_entry
+        self.heading = entry.heading
+        self.entry = entry
+        print( '%s(rock).pushed,thing %s entry %s destination %s direction %s'%(
+            self.m, self.thing, entry, destination, entry.heading))
+        self.thing.push(self, entry.heading)
     def __init__(self, avatar, place, x, y, **kw):
         inherit(Cell(avatar, place, x, y, me=self),self)
         self.avatar,self.place = avatar, place
