@@ -99,17 +99,21 @@ class Actor:
         print( 'actor.move, position %d %d  entry%s real %d %d'%(loc.x, loc.y, loc, mx, my))
         avatar.move(mx, my)
         self.thing.move(self)
-    def go_backward(self):
+    def go_backward(self,a=0):
         self.thing.leave(self, direction = self.get_direction(back=True))
-    def go_forward(self):
+    def go_forward(self,a=0):
         self.thing.leave(self, direction = self.get_direction())
-    def go_take(self):
+    def go_left(self,a=0):
+        self.avatar.go_left()
+    def go_right(self,a=0):
+        self.avatar.go_right()
+    def go_take(self,a=0):
         self.thing.take(self, direction = self.get_direction())
-    def go_give(self):
+    def go_give(self,a=0):
         self.thing.give(self, direction = self.get_direction())
-    def go_pull(self):
+    def go_pull(self,a=0):
         self.thing.push(self, direction = self.get_direction(back=True))
-    def go_push(self):
+    def go_push(self,a=0):
         self.thing.push(self, direction = self.get_direction())
     def __init__(self, avatar, place, x, y, **kw):
         print( 'actor,init',avatar, place, x, y)

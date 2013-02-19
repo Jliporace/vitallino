@@ -24,7 +24,22 @@ def main(pn, gui, spr = None, plan= SIMPLE):
     builder = builder.Builder()
     return builder.build(pn, gui, builder.build_inventory(FS=spr), plan)
 
-def web_main(pn, gui, spr = None, plan= SIMPLE):
+def go_push(*a,**kw):
+    alert('go push')
+
+def web_main(dc,pn, gui, spr = None, plan= SIMPLE):
     #from kwarwp_factory import Sprite
     builder = Builder()
-    return builder.build(pn, gui, builder.build_inventory(FS = Sprite), plan)
+    place = builder.build(pn, gui, builder.build_inventory(FS = Sprite), plan)
+    #dc['tri'].addEventListener("click", go_push)
+    def push(a, hand = place.actor.go_push):
+        hand()
+    dc['for'].addEventListener("click", place.actor.go_forward)
+    dc['lef'].addEventListener("click", place.actor.go_left)
+    dc['rig'].addEventListener("click", place.actor.go_right)
+    dc['aft'].addEventListener("click", place.actor.go_backward)
+    dc['tri'].addEventListener("click", place.actor.go_push)
+    dc['exi'].addEventListener("click", place.actor.go_pull)
+    dc['cir'].addEventListener("click", place.actor.go_take)
+    dc['squ'].addEventListener("click", place.actor.go_give)
+    return place
