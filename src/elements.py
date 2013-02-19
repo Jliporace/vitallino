@@ -15,7 +15,7 @@ __version__ = "0.2 $Revision$"[10:-1]
 __date__    = "2013/02/09 $Date$"
 """
 if '__package__' in dir():
-    from parts import Cell
+    #from parts import Cell
     pass
     
 def inherit(base, child):
@@ -54,16 +54,24 @@ class Entry:
         return (self.x, self.y)
 
 class Trunk:
+    def reset(self):
+        self.move_entry = self.null_move_entry
+        self.entry.reset()
     def get_direction(self):
         return self.avatar.get_direction()
     def get_position(self,x=0, y=0):
         return (self.x, self.y)
     def enter(self,entry, destination ):
         print('It is HEAVY!!')
+        entry.reset()
+    def take(self,entry,direction ):
+        print('Hands Busy!!')
+        entry.reset()
     def _move(self, loc):
         self.place.clear()
-        self.x, self.y, loc.thing = loc.x, loc.y, self
+        self.x, self.y = loc.x, loc.y
         self.place = loc
+        loc.clear(self)
         ##print( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
         avatar = self.avatar
         mx, my = self.thing.get_real_position(x=loc.x, y=loc.y)
@@ -89,6 +97,8 @@ class Trunk:
             entry.move(loc)
             self.move_entry = self.null_move_entry
         self.move_entry = _move_entry
+        self.heading = entry.heading
+        self.entry = entry
         print( '%s(trunk).pushed,thing %s entry %s destination %s direction %s'%(
             self.m, self.thing, entry, destination, entry.heading))
         self.thing.push(self, entry.heading)
@@ -107,11 +117,16 @@ class Trunk:
 class Border:
     def enter(self,entry, destination ):
         print('Cant go this way!!')
+        entry.reset()
     def pushed(self,entry, destination ):
         print('Cant go this way!!')
+        entry.reset()
+    def given(self,entry, destination ):
+        print('Cant give this way!!')
+        entry.reset()
     def __init__(self, avatar, place, x, y, **kw):
         inherit(Cell(avatar, place, x, y, me=self),self)
         self.thing, self.x, self.y, self.m = place, x, y, self
-        self.place = Way(None,place, self.x, self.y)
+        self.place = place #Way(None,place, self.x, self.y)
         #self.avatar,self.place, self.x, self.y = avatar, place, x, y
 

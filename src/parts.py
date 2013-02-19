@@ -35,11 +35,11 @@ class Cell:
         return None
     def move(self, loc):
         print('nothing here, just dust!')
-    def clear(self):
-        print( '%s.clear, position %d %d thing, place %s %s'%(
-            self.m, self.x, self.y, self.thing, self.place ))
-        self.thing = PLACE #self.place
-        self.m.thing = PLACE # self.place
+    def clear(self, load= None):
+        print( '%s.clear, position %d %d thing %s load %s'%(
+            self.m, self.x, self.y, self.thing, load ))
+        self.thing = load or PLACE#self.place
+        self.m.thing = load or PLACE # self.place
     def get_real_position(self,x=0,y=0):
         return self.place.get_position(x=x,y=y)
     def get_position(self,x=0,y=0):
@@ -50,8 +50,8 @@ class Cell:
     def leave(self,entry, direction):
         self.place.leave(entry, direction)
     def pushed(self,entry, destination):
+        print( '%s.pushed,thing %s entry %s destination %s'%(self.m, self.thing, entry, destination))
         self.thing.pushed(entry, destination)
-        print( '%s.pushed,thing %s self %s destination %s'%(self.m, self.thing, self, destination))
     def push(self,entry, direction):
         self.place.push(entry, direction)
     def taken(self,entry, destination):
@@ -60,16 +60,19 @@ class Cell:
     def take(self,entry, direction):
         self.place.take(entry, direction)
     def given(self,entry, destination):
+        print( '%s.given,thing %s entry %s self %s destination %s'%(
+            self.m, self.thing, entry, self, destination))
         self.thing.given(entry, destination)
-        print( '%s.given,thing %s self %s destination %s'%(self.m, self.thing, self, destination))
     def give(self,entry, direction):
         self.place.give(entry, direction)
 
 class Actor:
-    def clear(self):
-        print( '%s.clear, position %d %d thing, place %s %s'%(
-            self, self.x, self.y, self.thing, self.place ))
-        self.thing = NOTHING
+    def reset(self):
+        pass
+    def clear(self, load=None):
+        print( '%s.clear, position %d %d thing, load %s %s'%(
+            self, self.x, self.y, self.thing, load ))
+        self.thing = load or NOTHING
     def get_entry(self):
         return self
     def get_direction(self, back= False):
@@ -87,13 +90,15 @@ class Actor:
     def move(self, loc):
         self.place.clear()
         #self.x, self.y, loc.thing, self.thing = loc.x, loc.y, self, loc or self.thing
-        self.x, self.y, loc.thing = loc.x, loc.y, self
+        self.x, self.y = loc.x, loc.y
+        loc.clear(self)
         self.place = loc
         ##print( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
         avatar = self.avatar
         mx, my = self.place.get_real_position(x=loc.x, y=loc.y)
         print( 'actor.move, position %d %d  entry%s real %d %d'%(loc.x, loc.y, loc, mx, my))
         avatar.move(mx, my)
+        self.thing.move(self)
     def go_backward(self):
         self.thing.leave(self, direction = self.get_direction(back=True))
     def go_forward(self):
@@ -126,6 +131,8 @@ class Nothing:
     def ngiven(self,entry, destination):
         print('nothing here!')
         #entry.give(destination)
+    def move(self, loc):
+        pass
     
 class Place:
     def clear(self):
@@ -151,7 +158,7 @@ class Place:
             'Place', locus, entry, direction, locus.x,locus.y))
         locus.taken(entry, locus)
     def given(self,entry, destination):
-        print('place',entry, destination)
+        print('place.given entry %s destination %s'%(entry, destination))
         entry.given(entry, destination)
     def give(self,entry, direction):
         locus = self.get_next(entry, direction)
@@ -169,8 +176,8 @@ class Place:
         locus.enter(entry, locus)
     def push(self,entry,direction):
         locus = self.get_next(entry, direction)
-        print( '%s.push locus %s entry %s dir %d lpos %d %d'%(
-            'Place', locus, entry, direction, locus.x,locus.y))
+        print( '%s.push locus %s entry %s thing %s lpos %d %d'%(
+            'Place', locus, entry, locus.thing, locus.x,locus.y))
         locus.pushed(entry, locus)
     def __init__(self, plan):
         global PLACE

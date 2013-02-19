@@ -150,18 +150,20 @@ class Avatar:
 
 class Sprite:
     def _show(self, x, y):
-        self.avatar.setAttribute('x', x) 
-        self.avatar.setAttribute('y', y)
+        lx, ly = x, y
+        self.avatar.setAttribute('x', lx) 
+        self.avatar.setAttribute('y', ly)
         self.avatar.setAttribute("visibility",'visible')
-    def move(self, place,x,y):
-        self.place, self.x, self.y = place, x, y
-        mx, my = place.get_position(x=x,y=y)
-        print( '%s,spr_move, position %d %d  real %d %d'%(place, x, y, mx, my))
-        self._show(mx, my)
+    def move(self, x, y):
+        #self.place, self.x, self.y = place, x, y
+        #mx, my = place.get_real_position(x=self.x,y=self.y)
+        print( '%s,spr_move, real %d %d'%(self, x, y))
+        self._show(x, y)
     def __init__(self,gui, img, place, x, y):
         self.avatar = gui.image(href=REPO%img,
                     x=100,y=100, width=32,height=32)
-        self.move(place, x, y)
+        mx, my = place.get_real_position(x=x,y=y)
+        self.move(mx, my)
     
 class NullSprite:
     def move(self, place,x,y):
