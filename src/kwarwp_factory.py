@@ -14,6 +14,8 @@ __author__  = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
 __version__ = "0.1 $Revision$"[10:-1]
 __date__    = "2013/01/09 $Date$"
 """
+import svg
+
 REPO = 'public/image/%s'
 
 def noop(nop=''):
@@ -60,26 +62,26 @@ class GUI:
 
     def text(self, text,x=150,y=25, font_size=22,text_anchor="middle",
       style= {}):
-      element = SVG.text(text,x=x,y=y,
+      element = svg.text(text,x=x,y=y,
       font_size=font_size,text_anchor=text_anchor,
       style=style)
       self.panel <= element
       return element
   
     def path(self, d,style={}, onMouseOver="noop",  onMouseOut="noop"):
-        exec('element = SVG.path(d=%s,style=%s%s)'%(
+        exec('element = svg.path(d=%s,style=%s%s)'%(
             str(d),str(style),self.get_args()))
         self.panel <= element
         return element
   
     def image(self,  href, x=0, y=0, width=100, height=50):
-        exec('element = SVG.image(href="%s", x=%i, y=%i, width=%i, height=%i%s)'%(
+        exec('element = svg.image(href="%s", x=%i, y=%i, width=%i, height=%i%s)'%(
             href, x, y, width, height,self.get_args()))
         self.panel <= element
         return element
   
     def rect(self, x=0, y=0, width=100, height=50,style={}):
-        exec('element = SVG.rect(x=%i, y=%i, width=%i, height=%i,style=%s%s)'%(
+        exec('element = svg.rect(x=%i, y=%i, width=%i, height=%i,style=%s%s)'%(
             x, y, width, height,str(style),self.get_args()))
         self.panel <= element
         return element

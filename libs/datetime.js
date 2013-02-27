@@ -1,4 +1,4 @@
-function $DateClass(){return function(){return new $Date(arguments)}}
+function $DateClass(){return new $Date(arguments)}
 $DateClass.__class__ = $type
 $DateClass.__str__ = function(){return "<class 'datetime.date'>"}
 
@@ -21,16 +21,16 @@ function $Date(args){
     this.strftime = function(fmt){return this.$dt.strftime(fmt)}
 }
 
-function $DateTimeClass(){return function(){return new $DateTime(arguments)}}
+function $DateTimeClass(){return new $DateTime(arguments)}
 $DateTimeClass.__class__ = $type
 $DateTimeClass.__str__ = function(){return "<class 'datetime.datetime'>"}
 
 function $DateTime(args){
 
+    this.__class__ = $DateTimeClass
+
     var daysPerMonth = [31,28,31,30,31,30,31,31,30,31,30,31]
  
-    this.__class__ = datetime.datetime
-
     if(args.length==0){$raise('TypeError',"Required argument 'year' (pos 1) not found")}
     year = args[0]
     if(args.length==1){$raise('TypeError',"Required argument 'month' (pos 2) not found")}
@@ -68,9 +68,8 @@ function $DateTime(args){
         
     this.__getattr__ = function(attr){return $getattr(this,attr)}
     
-    this.toString = function(){
-        return str(this.year+'-'+this.month+'-'+this.day)
-    }
+    this.__str__ = function(){return this.strftime('%Y-%m-%d %H:%M:%S')}
+    
     this.norm_str = function(arg,nb){
         // left padding with 0
         var res = str(arg)
