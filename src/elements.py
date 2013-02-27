@@ -15,7 +15,7 @@ __version__ = "0.2 $Revision$"[10:-1]
 __date__    = "2013/02/09 $Date$"
 """
 if '__package__' in dir():
-    #from parts import Cell
+    from parts import Cell
     pass
     
 def inherit(base, child):

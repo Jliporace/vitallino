@@ -15,8 +15,8 @@ __version__ = "0.1 $Revision$"[10:-1]
 __date__    = "2013/02/09 $Date$"
 """
 if '__package__' in dir():
-    #from parts import Actor, Place
-    #from elements import *
+    from parts import Actor, Place
+    from elements import *
     pass
     
 class NullSprite:
