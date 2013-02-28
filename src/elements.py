@@ -162,7 +162,7 @@ class Rock:
         print('Too much Heavy to take!!')
         entry.reset()
     def enter(self,entry, destination ):
-        print('It is HEAVY!!', PLACE)
+        print('It is HEAVY!!')
         self.place.talk('It is HEAVY!!')
         entry.reset()
     def pushed(self,entry, destination ):

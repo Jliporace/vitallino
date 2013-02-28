@@ -123,6 +123,16 @@ class TestMain(mocker.MockerTestCase):
     assert isinstance(self.app.plan[1][B].thing, Actor),self.app.plan[1][B].thing
     self.app.actor.go_forward()
     self._check_after_move(A,B,C=Door,D=Door, P=Actor)
+  def testa_cant_move_into_rock(self):
+    "cant move into_rock"
+    self._expect_all_place()
+    expect(self.ma.get_direction()).result(1)
+    expect(self.ma.move(ARGS))
+    self._replay_and_create_place('.&*')
+    B, A = 2,2
+    assert isinstance(self.app.plan[1][B].thing, Actor),self.app.plan[1][B].thing
+    self.app.actor.go_forward()
+    self._check_after_move(A,B,C=Door,D=Door, P=Actor)
   def testa_move_forward_and_back(self):
     "move forward and back"
     self._expect_all_place()
