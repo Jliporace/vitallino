@@ -5,7 +5,7 @@ Vitallino - Criador de Jogos Simplificado
 
 :Author: *Carlo E. T. Oliveira*
 :Contact: carlo@nce.ufrj.br
-:Date: $Date: 2013/01/09  $
+:Date: $Date: 2013/02/27  $
 :Status: This is a "work in progress"
 :Revision: $Revision: 0.2 $
 :Home: `Labase http://labase.nce.ufrj.br/`__
@@ -34,6 +34,7 @@ class Way:
 
 class Tar:
     def leave(self,thing, action, reverse =0):
+        self.place.talk('Youre STUCK!!!')
         print('Youre STUCK!!!')
     def __init__(self, avatar, place, x, y, **kw):
         inherit(Cell(avatar, place, x, y, me=self),self)
@@ -66,9 +67,11 @@ class Trunk:
     def get_position(self,x=0, y=0):
         return (self.x, self.y)
     def enter(self,entry, destination ):
+        self.place.talk('It is HEAVY!!')
         print('It is HEAVY!!')
         entry.reset()
     def take(self,entry,direction ):
+        self.place.talk('Hands Busy!!')
         print('Hands Busy!!')
         entry.reset()
     def _move(self, loc):
@@ -91,7 +94,9 @@ class Trunk:
         self._move(loc)
         self.move_entry(place)
     def given(self,entry, destination):
-        self._move(destination)
+        self.place.talk('No space to drop here!!')
+        entry.reset()
+        #self._move(destination)
         #self.thing.give(self, destination)
     def give(self, entry, direction):
         self.thing.give(self, direction)
@@ -149,11 +154,16 @@ class Rock:
         place = self.place
         self._move(loc)
         self.move_entry(place)
+    def given(self,entry, destination):
+        self.place.talk('No space to drop here!!')
+        entry.reset()
     def taken(self,entry, destination):
+        self.place.talk('Too much heavy to take!!')
         print('Too much Heavy to take!!')
         entry.reset()
     def enter(self,entry, destination ):
-        print('It is HEAVY!!')
+        print('It is HEAVY!!', PLACE)
+        self.place.talk('It is HEAVY!!')
         entry.reset()
     def pushed(self,entry, destination ):
         def _move_entry(loc, entry= entry, self= self):
@@ -178,12 +188,15 @@ class Rock:
 
 class Border:
     def enter(self,entry, destination ):
+        self.place.talk('Cant go this way!!')
         print('Cant go this way!!')
         entry.reset()
     def pushed(self,entry, destination ):
+        self.place.talk('Cant go this way!!')
         print('Cant go this way!!')
         entry.reset()
     def given(self,entry, destination ):
+        self.place.talk('Cant give this way!!')
         print('Cant give this way!!')
         entry.reset()
     def __init__(self, avatar, place, x, y, **kw):

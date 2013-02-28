@@ -5,7 +5,7 @@ Vitallino - Criador de Jogos Simplificado
 
 :Author: *Carlo E. T. Oliveira*
 :Contact: carlo@nce.ufrj.br
-:Date: $Date: 2013/02/09  $
+:Date: $Date: 2013/02/27  $
 :Status: This is a "work in progress"
 :Revision: $Revision: 0.1 $
 :Home: `Labase http://labase.nce.ufrj.br/`__
@@ -31,6 +31,8 @@ class Cell:
         #inherit(Entrance(place, x, y),self)
         self.avatar,self.place = avatar, PLACE
         self.thing, self.x, self.y, self.m = place, x, y, me or self
+    def talk(self, message):
+        PLACE.talk(message)
     def rebase(self,base):
         return None
     def move(self, loc):
@@ -69,6 +71,8 @@ class Cell:
 class Actor:
     def reset(self):
         pass
+    def talk(self, message):
+        PLACE.talk(message)
     def clear(self, load=None):
         print( '%s.clear, position %d %d thing, load %s %s'%(
             self, self.x, self.y, self.thing, load ))
@@ -99,22 +103,31 @@ class Actor:
         print( 'actor.move, position %d %d  entry%s real %d %d'%(loc.x, loc.y, loc, mx, my))
         avatar.move(mx, my)
         self.thing.move(self)
+    def run_command(self, command, **keyword_parameters):
+        PLACE.talk('')
+        command(**keyword_parameters)
     def go_backward(self,a=0):
-        self.thing.leave(self, direction = self.get_direction(back=True))
+        self.run_command(self.thing.leave, entry = self,
+            direction = self.get_direction(back=True))
     def go_forward(self,a=0):
-        self.thing.leave(self, direction = self.get_direction())
+        self.run_command(self.thing.leave, entry = self,
+            direction = self.get_direction())
     def go_left(self,a=0):
-        self.avatar.go_left()
+        self.run_command(self.avatar.go_left)
     def go_right(self,a=0):
-        self.avatar.go_right()
+        self.run_command(self.avatar.go_right)
     def go_take(self,a=0):
-        self.thing.take(self, direction = self.get_direction())
+        self.run_command(self.thing.take, entry = self,
+            direction = self.get_direction())
     def go_give(self,a=0):
-        self.thing.give(self, direction = self.get_direction())
+        self.run_command(self.thing.give, entry = self,
+            direction = self.get_direction())
     def go_pull(self,a=0):
-        self.thing.push(self, direction = self.get_direction(back=True))
+        self.run_command(self.thing.push, entry = self,
+            direction = self.get_direction(back=True))
     def go_push(self,a=0):
-        self.thing.push(self, direction = self.get_direction())
+        self.run_command(self.thing.push, entry = self,
+            direction = self.get_direction())
     def __init__(self, avatar, place, x, y, **kw):
         print( 'actor,init',avatar, place, x, y)
         self.avatar, self.place, self.x, self.y = avatar, place, x, y
@@ -163,7 +176,8 @@ class Place:
         locus.taken(entry, locus)
     def given(self,entry, destination):
         print('place.given entry %s destination %s'%(entry, destination))
-        entry.given(entry, destination)
+        #entry.given(entry, destination)
+        entry.move(destination)
     def give(self,entry, direction):
         locus = self.get_next(entry, direction)
         print( '%s.give locus %s entry %s dir %d lpos %d %d'%(
@@ -183,8 +197,11 @@ class Place:
         print( '%s.push locus %s entry %s thing %s lpos %d %d'%(
             'Place', locus, entry, locus.thing, locus.x,locus.y))
         locus.pushed(entry, locus)
+    def talk(self, message):
+        self.legend.textContent = message
     def __init__(self, plan):
         global PLACE
         PLACE = self
         self.plan = plan
+        self.legend = None
         self.nothing = Nothing(self)

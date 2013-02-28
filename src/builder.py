@@ -5,7 +5,7 @@ Vitallino - Criador de Jogos Simplificado
 
 :Author: *Carlo E. T. Oliveira*
 :Contact: carlo@nce.ufrj.br
-:Date: $Date: 2013/02/09  $
+:Date: $Date: 2013/02/27  $
 :Status: This is a "work in progress"
 :Revision: $Revision: 0.1 $
 :Home: `Labase http://labase.nce.ufrj.br/`__
@@ -65,6 +65,9 @@ class Builder:
         ##print(self.plan)
         plan = self.plan
         self.place.plan = plan
+        self.place.legend = gui.text('Welcome to Kuarup!',x=350,y=45,
+            font_size=20,text_anchor="middle",
+            style={"stroke":"gold", 'fill':"gold"})
         print ([(p[1],p[1].x) for p in plan])
         return self.place
 
@@ -72,9 +75,6 @@ class Builder:
         # Setup main scenario background
         image = gui.rect(x=10,y=10, width=780, height=580,style={'fill':'forestgreen'})
         image = gui.rect(x=100,y=100, width=600, height=400,style={'fill':'navajowhite'})
-        legend = gui.text('Welcome to Kuarup!',x=350,y=45,
-            font_size=20,text_anchor="middle",
-            style={"stroke":"gold", 'fill':"gold"})
 
     def build(self, pn, gui, inventory, plan):
         # Setup main scenario

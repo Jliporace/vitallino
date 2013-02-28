@@ -7,7 +7,7 @@ Pygame Factory : Gui interface to pygame
 
 :Author: *Carlo E. T. Oliveira*
 :Contact: carlo@nce.ufrj.br
-:Date: $Date: 2013/02/02  $
+:Date: $Date: 2013/02/27  $
 :Status: This is a "work in progress"
 :Revision: $Revision: 0.1 $
 :Home: `Labase <http://labase.nce.ufrj.br/>`__
@@ -53,9 +53,10 @@ class TestMain(mocker.MockerTestCase):
     expect(self.mg.avatar()).result(self.ma)
     expect(self.mg.handler(ARGS)).count(1,6)
     expect(self.mg.rect(ARGS,KWARGS)).count(1,6)
-    expect(self.mg.text(ARGS,KWARGS)).count(1,6)
+    expect(self.mg.text(ARGS,KWARGS)).result(self.mg).count(1,6)
     expect(self.ma.move(ARGS))
     expect(self.mg(ARGS)).count(1,96).result(self.ma)
+    #expect(self.mg.textContent = ANY).count(0,6)
   def _check_after_push(self,A,B,W=Way):
     assert isinstance(self.app.plan[1][A], Way),self.app.plan[1][A]
     assert isinstance(self.app.plan[1][A].place, Place),self.app.plan[1][A].place
@@ -95,6 +96,8 @@ class TestMain(mocker.MockerTestCase):
     "create place"
     self.mock_gui.replay()
     self.app = main(self.mg, self.mg, self.mg, p)
+    self.app.talk = lambda a : None
+    #self.talk = self.mock_gui.patch(self.app.talk)
     print('---- NOW OPERATIONS ----')
   def testa_cria_place(self):
     "create place"
@@ -211,6 +214,17 @@ class TestMain(mocker.MockerTestCase):
     assert isinstance(self.app.plan[1][B].thing, Actor),self.app.plan[1][B].thing
     self.app.actor.go_give()
     self._check_after_take(A,B,P=Trunk,T=Nothing)
+    #assert isinstance(self.app.plan[1][B].thing.thing.place, Actor),self.app.plan[1][B].place
+  def testa_cannot_give_into_rock(self):
+    "cannot give into rock"
+    self._expect_all_place()
+    expect(self.ma.get_direction()).result(1)
+    expect(self.ma.move(ARGS))
+    self._replay_and_create_place('.&*')
+    B, A = 2,3
+    assert isinstance(self.app.plan[1][B].thing, Actor),self.app.plan[1][B].thing
+    self.app.actor.go_give()
+    self._check_after_take(A,B,P=Rock,T=Nothing)
     #assert isinstance(self.app.plan[1][B].thing.thing.place, Actor),self.app.plan[1][B].place
   def testa_give_forward(self):
     "give forward"
