@@ -14,7 +14,8 @@ __author__  = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
 __version__ = "0.1 $Revision$"[10:-1]
 __date__    = "2013/01/09 $Date$"
 """
-import svg
+if not '__package__' in dir():
+    import svg
 
 REPO = 'public/image/%s'
 
@@ -32,8 +33,8 @@ def jshandler(event):
     if code in VKHANDLER:
         VKHANDLER[code]()
     #alert(event.keyCode)
-    
-doc.onkeypress=jshandler
+if not '__package__' in dir():
+    doc.onkeypress=jshandler
 
 def eventify(owner):
     #alert('owner :'+owner)

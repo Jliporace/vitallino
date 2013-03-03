@@ -17,6 +17,7 @@ __date__    = "2013/02/09 $Date$"
 if '__package__' in dir():
     from parts import Actor, Place
     from elements import *
+    from kwarwp_factory import REPO
     pass
     
 class NullSprite:
@@ -73,8 +74,13 @@ class Builder:
 
     def build_land(self, gui):
         # Setup main scenario background
-        image = gui.rect(x=10,y=10, width=780, height=580,style={'fill':'forestgreen'})
-        image = gui.rect(x=100,y=100, width=600, height=400,style={'fill':'navajowhite'})
+        #image = gui.rect(x=10,y=10, width=780, height=580,style={'fill':'forestgreen'})
+        image = gui.image(href=REPO%'forest.jpg',
+                    x=0,y=0, width=900,height=600)
+        #image = gui.rect(x=100,y=100, width=600, height=400,style={'fill':'navajowhite'})
+        image = gui.image(href=REPO%'soil.jpg',
+                    x=100,y=100, width=600,height=400)
+
 
     def build(self, pn, gui, inventory, plan):
         # Setup main scenario

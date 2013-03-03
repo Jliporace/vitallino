@@ -52,7 +52,7 @@ class TestMain(mocker.MockerTestCase):
     "place expectations"
     expect(self.mg.avatar()).result(self.ma)
     expect(self.mg.handler(ARGS)).count(1,6)
-    expect(self.mg.rect(ARGS,KWARGS)).count(1,6)
+    expect(self.mg.image(ARGS,KWARGS)).count(1,6)
     expect(self.mg.text(ARGS,KWARGS)).result(self.mg).count(1,6)
     expect(self.ma.move(ARGS))
     expect(self.mg(ARGS)).count(1,96).result(self.ma)
