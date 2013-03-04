@@ -37,6 +37,7 @@ class Builder:
         actor.move(door)
         #actor.place = door
         #actor.thing = door
+        gui.handler(13, actor.go_step)
         gui.handler(38, actor.go_forward)
         gui.handler(40, actor.go_backward)
         gui.handler(34, actor.go_pull)
@@ -44,7 +45,7 @@ class Builder:
         gui.handler(35, actor.go_take)
         gui.handler(36, actor.go_give)
 
-    def build_place(self,plan, gui, IV):
+    def build_place(self,plan, gui, IV, solver):
         def line(y, row, me):
             #x = ['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)]
             PART, ICON, IMGE  = 0, 1, 2
@@ -53,7 +54,7 @@ class Builder:
             x = [IV[p][PART](IV[p][ICON](gui, IV[p][IMGE],me,x,y),me,x,y)
                 for x, p in enum_row]
             return x
-        self.place = Place([])
+        self.place = Place([], solver)
         w = len(plan.split('\n')[0])
         border =[' '*w]
         border.extend(plan.split('\n'))
@@ -78,14 +79,13 @@ class Builder:
         image = gui.image(href=REPO%'forest.jpg',
                     x=0,y=0, width=900,height=600)
         #image = gui.rect(x=100,y=100, width=600, height=400,style={'fill':'navajowhite'})
-        image = gui.image(href=REPO%'soil.jpg',
-                    x=100,y=100, width=600,height=400)
+        image = gui.rect(x=100,y=100, width=608, height=416,style={'fill':'url(#EMFimage1)'})
 
 
-    def build(self, pn, gui, inventory, plan):
+    def build(self, pn, gui, inventory, plan, solver):
         # Setup main scenario
         self.build_land(gui)
-        place = self.build_place(plan, gui, inventory)
+        place = self.build_place(plan, gui, inventory, solver)
         self.build_actor(gui, place, place.x, place.y)
         return place
     

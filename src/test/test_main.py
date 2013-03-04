@@ -51,8 +51,9 @@ class TestMain(mocker.MockerTestCase):
   def _expect_all_place(self):
     "place expectations"
     expect(self.mg.avatar()).result(self.ma)
-    expect(self.mg.handler(ARGS)).count(1,6)
-    expect(self.mg.image(ARGS,KWARGS)).count(1,6)
+    expect(self.mg.handler(ARGS)).count(1,7)
+    expect(self.mg.image(ARGS,KWARGS)).count(1)
+    expect(self.mg.rect(ARGS,KWARGS)).count(1)
     expect(self.mg.text(ARGS,KWARGS)).result(self.mg).count(1,6)
     expect(self.ma.move(ARGS))
     expect(self.mg(ARGS)).count(1,96).result(self.ma)
@@ -103,6 +104,50 @@ class TestMain(mocker.MockerTestCase):
     "create place"
     self._expect_all_place()
     self._replay_and_create_place()
+  def testa_first_go_step(self):
+    "first go step"
+    self._expect_all_place()
+    expect(self.ma.get_direction()).result(1)
+    expect(self.ma.go_left).result(self.ma).count(2)
+    #expect(self.ma.go_take()).count(1)
+    self._replay_and_create_place()
+    B, A = 2,2
+    assert isinstance(self.app.plan[1][B].thing, Actor),self.app.plan[1][B].thing
+    self.app.actor.go_step()
+    self._check_after_move(A,B,C=Door,D=Door, P=Actor)
+    assert  not isinstance(self.app.actor.stepper, Actor),self.app.actor.stepper
+  def testa_first_step_from_queue(self):
+    "first step from queue"
+    self._expect_all_place()
+    expect(self.ma.get_direction()).result(1)
+    expect(self.ma.go_left).result(self.ma).count(2)
+    expect(self.ma()).count(1)
+    self._replay_and_create_place()
+    B, A = 2,2
+    assert isinstance(self.app.plan[1][B].thing, Actor),self.app.plan[1][B].thing
+    self.app.actor.go_step()
+    self._check_after_move(A,B,C=Door,D=Door, P=Actor)
+    assert  not isinstance(self.app.actor.stepper, Actor),self.app.actor.stepper
+    self.app.actor.go_step()
+    self._check_after_move(A,B,C=Door,D=Door, P=Actor)
+  def testa_all_steps_from_queue(self):
+    "all steps from queue"
+    self._expect_all_place()
+    expect(self.ma.get_direction()).result(3)
+    expect(self.ma.go_left).result(self.ma).count(2)
+    expect(self.ma()).count(2)
+    expect(self.ma.move(132, 100))
+    self._replay_and_create_place('$&')
+    B, A = 2,2
+    assert isinstance(self.app.plan[1][B].thing, Actor),self.app.plan[1][B].thing
+    self.app.actor.go_step()
+    self._check_after_move(A,B,C=Door,D=Door, P=Actor)
+    assert  not isinstance(self.app.actor.stepper, Actor),self.app.actor.stepper
+    self.app.actor.go_step()
+    self.app.actor.go_step()
+    self.app.actor.go_step()
+    self._check_after_move(A,B,C=Door,D=Door, P=Actor, T= Trunk)
+    #assert False
   def testa_move_forward(self):
     "move forward"
     self._expect_all_place()

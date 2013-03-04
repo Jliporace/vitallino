@@ -19,21 +19,23 @@ SIMPLE = ('..$$$&.*.'+'.'*10+('\n'+'.'*19)*12)
 #ES,FS = NullSprite, Sprite
 
 
-def main(pn, gui, spr = None, plan= SIMPLE):
+
+def solver(a):
+    a.go_left()
+    a.go_left()
+    a.go_take()
+
+def main(pn, gui, spr = None, plan= SIMPLE, solver=solver):
     import builder
     builder = builder.Builder()
-    return builder.build(pn, gui, builder.build_inventory(FS=spr), plan)
+    return builder.build(pn, gui, builder.build_inventory(FS=spr), plan, solver)
 
-def go_push(*a,**kw):
-    alert('go push')
-
-def web_main(dc,pn, gui, spr = None, plan= SIMPLE):
+def web_main(dc,pn, gui, spr = None, plan= SIMPLE, solver=solver):
     #from kwarwp_factory import Sprite
     builder = Builder()
-    place = builder.build(pn, gui, builder.build_inventory(FS = Sprite), plan)
-    #dc['tri'].addEventListener("click", go_push)
-    def push(a, hand = place.actor.go_push):
-        hand()
+    place = builder.build(
+        pn, gui, builder.build_inventory(FS = Sprite), plan, solver)
+    
     dc['for'].addEventListener("click", place.actor.go_forward)
     dc['lef'].addEventListener("click", place.actor.go_left)
     dc['rig'].addEventListener("click", place.actor.go_right)
@@ -43,3 +45,4 @@ def web_main(dc,pn, gui, spr = None, plan= SIMPLE):
     dc['cir'].addEventListener("click", place.actor.go_take)
     dc['squ'].addEventListener("click", place.actor.go_give)
     return place
+
