@@ -80,8 +80,11 @@ class Actor:
     def get_entry(self):
         return self
     def get_direction(self, back= False):
-        self.heading = (self.avatar.get_direction()+ int(back)*2)%4
+        self.heading = (self.avatar.get_direction()+ int(self.back)*2)%4
         return self.heading
+    def set_direction(self, back= False):
+        self.back = back
+        return self
     def get_real_position(self,x=0,y=0):
         return self.place.get_position(x=x,y=y)
     def get_position(self):
@@ -131,26 +134,26 @@ class Actor:
         self.stepper.step()
     def go_backward(self,a=0):
         self.stepper.run_command(self.thing.leave, entry = self,
-            direction = self.get_direction(back=True))
+            direction = self.set_direction(back=True))
     def go_forward(self,a=0):
         self.stepper.run_command(self.thing.leave, entry = self,
-            direction = self.get_direction())
+            direction = self.set_direction())
     def go_left(self,a=0):
         self.stepper.run_command(self.avatar.go_left)
     def go_right(self,a=0):
         self.stepper.run_command(self.avatar.go_right)
     def go_take(self,a=0):
         self.stepper.run_command(self.thing.take, entry = self,
-            direction = self.get_direction())
+            direction = self.set_direction())
     def go_give(self,a=0):
         self.stepper.run_command(self.thing.give, entry = self,
-            direction = self.get_direction())
+            direction = self.set_direction())
     def go_pull(self,a=0):
         self.stepper.run_command(self.thing.push, entry = self,
-            direction = self.get_direction(back=True))
+            direction = self.set_direction(back=True))
     def go_push(self,a=0):
         self.stepper.run_command(self.thing.push, entry = self,
-            direction = self.get_direction())
+            direction = self.set_direction())
     def __init__(self, avatar, place, x, y, **kw):
         print( 'actor,init',avatar, place, x, y)
         self.avatar, self.place, self.x, self.y = avatar, place, x, y
@@ -166,11 +169,6 @@ class Nothing:
         self.place = place
     def give(self,entry, direction):
         print('nothing here, bare!')
-    def ntaken(self,entry, destination):
-        print('nothing here!')
-        #entry.take(destination)
-    def ngiven(self,entry, destination):
-        print('nothing here!')
         #entry.give(destination)
     def move(self, loc):
         pass
@@ -185,7 +183,7 @@ class Place:
         return self.get_position(x=x,y=y)
     def get_next(self, thing, direction):
         x, y = thing.get_position()
-        dx, dy = WIND[direction]
+        dx, dy = WIND[direction.get_direction()]
         self.pos = (x+dx, y+dy)
         px, py = self.pos
         locus = self.plan[py][px]
@@ -196,7 +194,7 @@ class Place:
     def take(self,entry, direction):
         locus = self.get_next(entry, direction)
         print( '%s.take locus %s entry %s dir %d lpos %d %d'%(
-            'Place', locus, entry, direction, locus.x,locus.y))
+            'Place', locus, entry, direction.get_direction(), locus.x,locus.y))
         locus.taken(entry, locus)
     def given(self,entry, destination):
         print('place.given entry %s destination %s'%(entry, destination))
@@ -205,7 +203,7 @@ class Place:
     def give(self,entry, direction):
         locus = self.get_next(entry, direction)
         print( '%s.give locus %s entry %s dir %d lpos %d %d'%(
-            'Place', locus, entry, direction, locus.x,locus.y))
+            'Place', locus, entry, direction.get_direction(), locus.x,locus.y))
         locus.given(entry, locus)
     def pushed(self,entry, destination):
         entry.move(destination)
@@ -214,7 +212,7 @@ class Place:
     def leave(self,entry,direction):
         locus = self.get_next(entry, direction)
         print( '%s.leave locus %s entry %s dir %d lpos %d %d'%(
-            'Place', locus, entry, direction, locus.x,locus.y))
+            'Place', locus, entry, direction.get_direction(), locus.x,locus.y))
         locus.enter(entry, locus)
     def push(self,entry,direction):
         locus = self.get_next(entry, direction)

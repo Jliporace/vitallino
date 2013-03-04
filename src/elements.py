@@ -63,7 +63,7 @@ class Trunk:
         self.move_entry = self.null_move_entry
         self.entry.reset()
     def get_direction(self):
-        return self.avatar.get_direction()
+        return self.entry.get_direction()
     def get_position(self,x=0, y=0):
         return (self.x, self.y)
     def enter(self,entry, destination ):
@@ -111,7 +111,7 @@ class Trunk:
         self.entry = entry
         print( '%s(trunk).pushed,thing %s entry %s destination %s direction %s'%(
             self.m, self.thing, entry, destination, entry.heading))
-        self.thing.push(self, entry.heading)
+        self.thing.push(self, entry)
     def __init__(self, avatar, place, x, y, **kw):
         inherit(Cell(avatar, place, x, y, me=self),self)
         self.avatar,self.place = avatar, place
@@ -132,7 +132,7 @@ class Rock:
         self.move_entry = self.null_move_entry
         self.entry.reset()
     def get_direction(self):
-        return self.avatar.get_direction()
+        return self.entry.get_direction()
     def get_position(self,x=0, y=0):
         return (self.x, self.y)
     def _move(self, loc):
@@ -174,7 +174,7 @@ class Rock:
         self.entry = entry
         print( '%s(rock).pushed,thing %s entry %s destination %s direction %s'%(
             self.m, self.thing, entry, destination, entry.heading))
-        self.thing.push(self, entry.heading)
+        self.thing.push(self, entry)
     def __init__(self, avatar, place, x, y, **kw):
         inherit(Cell(avatar, place, x, y, me=self),self)
         self.avatar,self.place = avatar, place

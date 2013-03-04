@@ -133,7 +133,7 @@ class TestMain(mocker.MockerTestCase):
   def testa_all_steps_from_queue(self):
     "all steps from queue"
     self._expect_all_place()
-    expect(self.ma.get_direction()).result(3)
+    expect(self.ma.get_direction()).result(3).count(2)
     expect(self.ma.go_left).result(self.ma).count(2)
     expect(self.ma()).count(2)
     expect(self.ma.move(132, 100))
@@ -151,7 +151,7 @@ class TestMain(mocker.MockerTestCase):
   def testa_move_forward(self):
     "move forward"
     self._expect_all_place()
-    expect(self.ma.get_direction()).result(1)
+    expect(self.ma.get_direction()).result(1).count(2)
     expect(self.ma.move(ARGS))
     self._replay_and_create_place()
     B, A = 2,3
@@ -161,7 +161,7 @@ class TestMain(mocker.MockerTestCase):
   def testa_cant_move_forward(self):
     "cant move forward"
     self._expect_all_place()
-    expect(self.ma.get_direction()).result(1)
+    expect(self.ma.get_direction()).result(1).count(2)
     expect(self.ma.move(ARGS))
     self._replay_and_create_place('.&')
     B, A = 2,2
@@ -171,7 +171,7 @@ class TestMain(mocker.MockerTestCase):
   def testa_cant_move_into_rock(self):
     "cant move into_rock"
     self._expect_all_place()
-    expect(self.ma.get_direction()).result(1)
+    expect(self.ma.get_direction()).result(1).count(2)
     expect(self.ma.move(ARGS))
     self._replay_and_create_place('.&*')
     B, A = 2,2
@@ -181,9 +181,8 @@ class TestMain(mocker.MockerTestCase):
   def testa_move_forward_and_back(self):
     "move forward and back"
     self._expect_all_place()
-    expect(self.ma.get_direction()).result(1)
+    expect(self.ma.get_direction()).result(1).count(4)
     expect(self.ma.move(ARGS))
-    expect(self.ma.get_direction()).result(1)
     expect(self.ma.move(ARGS))
     self._replay_and_create_place()
     B, A = 3,2
@@ -197,7 +196,7 @@ class TestMain(mocker.MockerTestCase):
   def testa_take_forward(self):
     "take forward"
     self._expect_all_place()
-    expect(self.ma.get_direction()).result(1)
+    expect(self.ma.get_direction()).result(1).count(2)
     expect(self.ma.move(ARGS))
     self._replay_and_create_place('.&$.')
     B, A = 2,3
@@ -210,7 +209,7 @@ class TestMain(mocker.MockerTestCase):
   def testa_take_nothing(self):
     "take nothing"
     self._expect_all_place()
-    expect(self.ma.get_direction()).result(1)
+    expect(self.ma.get_direction()).result(1).count(2)
     expect(self.ma.move(ARGS))
     self._replay_and_create_place('.&..')
     B, A = 2,3
@@ -284,7 +283,7 @@ class TestMain(mocker.MockerTestCase):
   def testa_give_forward(self):
     "give forward"
     self._expect_all_place()
-    expect(self.ma.get_direction()).count(1,2).result(1)
+    expect(self.ma.get_direction()).count(1,4).result(1)
     expect(self.ma.move(ARGS)).count(1,2)
     self._replay_and_create_place('.&$.')
     B, A = 2,3
@@ -302,7 +301,7 @@ class TestMain(mocker.MockerTestCase):
   def testa_move_with_taken(self):
     "take and move"
     self._expect_all_place()
-    expect(self.ma.get_direction()).count(1,2).result(1)
+    expect(self.ma.get_direction()).count(1,6).result(1)
     #expect(self.ma.move(ARGS)).count(1,2)
     expect(self.ma.move(132,100))
     expect(self.ma.move(164,100))
