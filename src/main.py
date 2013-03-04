@@ -24,6 +24,7 @@ def solver(a):
     a.go_left()
     a.go_left()
     a.go_take()
+    a.go_give()
 
 def main(pn, gui, spr = None, plan= SIMPLE, solver=solver):
     import builder

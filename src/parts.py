@@ -120,40 +120,53 @@ class Actor:
             def step(self):
                 #command,keyword_parameters = self.queue.pop(0)
                 command,keyword_parameters = self.queue[0]
-                self.queue = self.queue[1:]
                 print(command, keyword_parameters)
                 PLACE.talk('')
                 command(**keyword_parameters)
-                if not self.queue:
+                if len(self.queue) > 1:
+                    self.queue = self.queue[1:]
+                else:
                     self.actor.stop()
+                    
         self.stepper = Queuer()
         PLACE.solver(self)
     def stop(self):
         self.stepper = self
+    def _backward(self,a=0):
+        self.thing.leave(entry = self, direction = self.set_direction(back=True))
+    def _forward(self,a=0):
+        self.thing.leave(entry = self, direction = self.set_direction())
+    def _left(self,a=0):
+        self.avatar.go_left()
+    def _right(self,a=0):
+        self.avatar.go_right()
+    def _take(self,a=0):
+        self.thing.take(entry = self, direction = self.set_direction())
+    def _give(self,a=0):
+        self.thing.give(entry = self, direction = self.set_direction())
+    def _pull(self,a=0):
+        self.thing.push(entry = self, direction = self.set_direction(back=True))
+    def _push(self,a=0):
+        self.thing.push(entry = self, direction = self.set_direction())
     def go_step(self):
+        print('Stepper : %s'%self.stepper)
         self.stepper.step()
     def go_backward(self,a=0):
-        self.stepper.run_command(self.thing.leave, entry = self,
-            direction = self.set_direction(back=True))
+        self.stepper.run_command(self._backward)
     def go_forward(self,a=0):
-        self.stepper.run_command(self.thing.leave, entry = self,
-            direction = self.set_direction())
+        self.stepper.run_command(self._forward)
     def go_left(self,a=0):
-        self.stepper.run_command(self.avatar.go_left)
+        self.stepper.run_command(self._left)
     def go_right(self,a=0):
-        self.stepper.run_command(self.avatar.go_right)
+        self.stepper.run_command(self._right)
     def go_take(self,a=0):
-        self.stepper.run_command(self.thing.take, entry = self,
-            direction = self.set_direction())
+        self.stepper.run_command(self._take)
     def go_give(self,a=0):
-        self.stepper.run_command(self.thing.give, entry = self,
-            direction = self.set_direction())
+        self.stepper.run_command(self._give)
     def go_pull(self,a=0):
-        self.stepper.run_command(self.thing.push, entry = self,
-            direction = self.set_direction(back=True))
+        self.stepper.run_command(self._pull)
     def go_push(self,a=0):
-        self.stepper.run_command(self.thing.push, entry = self,
-            direction = self.set_direction())
+        self.stepper.run_command(self._push)
     def __init__(self, avatar, place, x, y, **kw):
         print( 'actor,init',avatar, place, x, y)
         self.avatar, self.place, self.x, self.y = avatar, place, x, y
