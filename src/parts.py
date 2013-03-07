@@ -68,6 +68,24 @@ class Cell:
     def give(self,entry, direction):
         self.place.give(entry, direction)
 
+class Queuer:
+    def __init__(self, actor = None):
+        self.queue = []
+        self.actor = actor
+    def run_command(self, command, **keyword_parameters):
+        #print(command, keyword_parameters)
+        self.queue.append([command,keyword_parameters])
+    def step(self):
+        command,keyword_parameters = self.queue.pop(0)
+        #command,keyword_parameters = self.queue[0]
+        print(command, keyword_parameters)
+        PLACE.talk('')
+        command(**keyword_parameters)
+        if not self.queue:
+            print('New stepper: ', self.actor)
+            self.actor.stop()
+            
+
 class Actor:
     def reset(self):
         pass
@@ -109,28 +127,8 @@ class Actor:
     def run_command(self, command, **keyword_parameters):
         PLACE.talk('')
         command(**keyword_parameters)
-    def step(self):
-        class Queuer:
-            def __init__(self, actor = self):
-                self.queue = []
-                self.actor = actor
-            def run_command(self, command, **keyword_parameters):
-                #print(command, keyword_parameters)
-                self.queue.append((command,keyword_parameters))
-            def step(self):
-                #command,keyword_parameters = self.queue.pop(0)
-                command,keyword_parameters = self.queue[0]
-                print(command, keyword_parameters)
-                PLACE.talk('')
-                command(**keyword_parameters)
-                if len(self.queue) > 1:
-                    self.queue = self.queue[1:]
-                else:
-                    self.actor.stop()
-                    
-        self.stepper = Queuer()
-        PLACE.solver(self)
     def stop(self):
+        print('Now stepper is : ', self)
         self.stepper = self
     def _backward(self,a=0):
         self.thing.leave(entry = self, direction = self.set_direction(back=True))
@@ -167,6 +165,29 @@ class Actor:
         self.stepper.run_command(self._pull)
     def go_push(self,a=0):
         self.stepper.run_command(self._push)
+    def step(self):
+        me = self
+        class nQueuer:
+            def __init__(self, actor = me):
+                self.queue = []
+                self.actor = actor
+            def run_command(self, command, **keyword_parameters):
+                #print(command, keyword_parameters)
+                self.queue.append([command,keyword_parameters])
+            def step(self):
+                command,keyword_parameters = self.queue.pop(0)
+                #command,keyword_parameters = self.queue[0]
+                print(command, keyword_parameters)
+                PLACE.talk('')
+                command(**keyword_parameters)
+                if not self.queue:
+                    print('New stepper: %s stepper %s'%( self.actor, self.actor.stepper))
+                    self.actor.stepper = self.actor
+                    self.actor.stop()
+                    
+        self.stepper = Queuer()
+        self.stepper.actor = self
+        PLACE.solver(self)
     def __init__(self, avatar, place, x, y, **kw):
         print( 'actor,init',avatar, place, x, y)
         self.avatar, self.place, self.x, self.y = avatar, place, x, y

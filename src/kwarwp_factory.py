@@ -16,6 +16,7 @@ __date__    = "2013/01/09 $Date$"
 """
 if not '__package__' in dir():
     import svg
+    from html import TEXTAREA
 
 REPO = 'public/image/%s'
 
@@ -60,6 +61,19 @@ class GUI:
             args = ''
         return args
             
+    def textarea(self,text,x,y,w,h,style= {}):
+        def dpx(d):
+            return '%spx'%d
+        attrs = dict (position = 'absolute', float= 'left', left=dpx(x), top=dpx(y) ,
+            width=dpx(w) , height=dpx(h), color = 'navajowhite', background = 'transparent')
+        t = TEXTAREA(text, style = attrs)
+        #t.setStyleAttribute('border',0)
+        return t
+    
+    def dialog(self,caption, text,x,y,w,h,style= {}):
+        t = textarea( text,x,y,w,h,style)
+        #t.setStyleAttribute('border',0)
+        return t
 
     def text(self, text,x=150,y=25, font_size=22,text_anchor="middle",
       style= {}):
