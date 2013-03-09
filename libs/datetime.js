@@ -11,14 +11,45 @@ function $Date(args){
     this.month = obj.month
     this.day = obj.day
     this.$dt = obj
+
+    this.__add__ = function(other) {
+        //if (isinstance(other, timedelta)) {}
+        $raise('TypeError', "unsupported operand type(s) for +: 'datetime.date' and '" + other.__class__ + "'");
+    }
     
     this.__class__ = $DateClass
 
+    this.__div__ = function(other) {
+        $raise('TypeError', "unsupported operand type(s) for /: 'datetime.date' and '" + other.__class__ + "'");
+    }
+
     this.__getattr__ = function(attr){return $getattr(this,attr)}
+
+    this.__gt__ = function(other) {
+         if (!isinstance(other, $Date)) {
+            $raise('TypeError', "unorderable types: datetime.date() < " + other.__class__ + "()");
+         }
+         return this.$js_date.getTime() > other.$js_date.getTime();
+    }
+
+    this.__hash__ = function() {return hash(tuple(this.year,this.month,this.day))}
+
+    this.__lt__ = function(other) {
+         if (!isinstance(other, $Date)) {
+            $raise('TypeError', "unorderable types: datetime.date() < " + other.__class__ + "()");
+         }
+         return this.$js_date.getTime() < other.$js_date.getTime();
+    }
     
+    this.__mul__ = function(other) {
+        $raise('TypeError', "unsupported operand type(s) for *: 'datetime.date' and '" + other.__class__ + "'");
+    }
+
     this.__str__ = function(){return this.strftime('%Y-%m-%d')}
 
     this.strftime = function(fmt){return this.$dt.strftime(fmt)}
+
+    this.weekday = function(fmt){return this.$dt.weekday(fmt)-1}
 }
 
 function $DateTimeClass(){return new $DateTime(arguments)}
@@ -68,7 +99,12 @@ function $DateTime(args){
         
     this.__getattr__ = function(attr){return $getattr(this,attr)}
     
-    this.__str__ = function(){return this.strftime('%Y-%m-%d %H:%M:%S')}
+    this.__hash__ = function() {
+       return hash(tuple(this.year,this.month,this.day,this.hour,this.minute,this.second,this.microsecond));
+    }
+
+    this.__str__ = function(){return !this.microsecond?
+        this.strftime('%Y-%m-%d %H:%M:%S'):this.strftime('%Y-%m-%d %H:%M:%S.%f')}
     
     this.norm_str = function(arg,nb){
         // left padding with 0
@@ -91,6 +127,69 @@ function $DateTime(args){
         res = res.replace('%w',this.$js_date.getDay())
         return str(res)
     }
+
+    this.weekday = function(){
+        var wd = this.$js_date.getDay()
+        return wd == 0 ? 6 : wd-1
+    }
+}
+
+function $TimeClass(){return new $Time(arguments)}
+$TimeClass.__class__ = $type
+$TimeClass.__str__ = function(){return "<class 'datetime.time'>"}
+
+function $Time(args){
+
+    this.__class__ = $TimeClass
+
+    if(args.length>4){$raise('TypeError',"Too many arguments - required 4, got "+args.length)}
+    if(args.length>0){hour=args[0]}else{hour=0}
+    if(args.length>1){minute=args[1]}else{minute=0}
+    if(args.length>2){second=args[2]}else{second=0}
+    if(args.length>3){microsecond=args[3]}else{microsecond=0}
+
+    if(!isinstance(hour,int)
+        || !isinstance(minute,int) || !isinstance(second,int)
+        || !isinstance(microsecond,int)){$raise('TypeError',"an integer is required")}
+    if(hour<0 || hour>23){$raise('ValueError',"hour must be in 0..23")}
+    if(minute<0 || minute>59){$raise('ValueError',"minute must be in 0..59")}
+    if(second<0 || second>59){$raise('ValueError',"second must be in 0..59")}
+    if(microsecond<0 || microsecond>999999){
+        $raise('ValueError',"microsecond must be in 0..999999")}
+    this.hour = hour
+    this.minute = minute
+    this.second = second
+    this.microsecond = microsecond
+    this.$js_date = new Date(hour,minute,second,microsecond/1000)
+
+    this.__getattr__ = function(attr){return $getattr(this,attr)}
+
+    this.__hash__ = function() {
+       return hash(tuple(this.hour,this.minute,this.second,this.microsecond))
+    }
+
+    this.__str__ = function(){return !!this.microsecond?this.strftime('%H:%M:%S.%f'):this.strftime('%H:%M:%S')}
+
+    this.norm_str = function(arg,nb){
+        // left padding with 0
+        var res = str(arg)
+        while(res.length<nb){res = '0'+res}
+        return res
+    }
+    this.strftime = function(fmt){
+        if(!isinstance(fmt,str)){throw new TypeError("strftime() argument should be str, not "+$str(fmt.__class__))}
+        var res = fmt
+        res = res.replace('%f',this.norm_str(this.microsecond,6))
+        res = res.replace('%H',this.norm_str(this.hour,2))
+        res = res.replace('%I',this.norm_str(int(this.hour.value%12),2))
+        res = res.replace('%M',this.norm_str(this.minute,2))
+        res = res.replace('%S',this.norm_str(this.second,2))
+        return str(res)
+    }
+}
+
+function $time(hour,minute,second,microsecond){
+    return new $Time(hour,minute,second,microsecond)
 }
 
 function $date(year,month,day){
@@ -109,7 +208,10 @@ function $datetime(year,month,day,hour,minute,second,microsecond){
 $module = {
     __getattr__ : function(attr){return this[attr]},
     date : $DateClass,
-    datetime : $DateTimeClass
+    datetime : $DateTimeClass,
+    time : $TimeClass,
+    MAXYEAR : 9999,
+    MINYEAR : 1    
 }
 
 $module.datetime.__getattr__= function(attr){
@@ -135,3 +237,8 @@ $module.date.__getattr__= function(attr){
     }
     $raise('AttributeError','datetime.datetime has no attribute '+attr)
 }
+
+
+$module.time.__getattr__= function(attr){
+    $raise('AttributeError','datetime.datetime has no attribute '+attr)
+} 

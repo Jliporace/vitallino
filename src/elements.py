@@ -16,7 +16,12 @@ __date__    = "2013/02/09 $Date$"
 """
 if '__package__' in dir():
     from parts import Cell
+    def _logger(*a):
+        print(a)
+    logger = _logger
     pass
+else:
+    logger = log
     
 def inherit(base, child):
     overriden, inherited = dir(child), dir(base)
@@ -26,22 +31,28 @@ def inherit(base, child):
     #child.m =  str(child.__class__)
     return base
 
-class Way:
+class Way(Cell):
     def __init__(self, avatar, place, x, y, me=None, **kw):
-        inherit(Cell(avatar, place, x, y, me=self),self)
+        #inherit(Cell(avatar, place, x, y, me=self),self)
+        Cell.__init__(self, avatar, place, x, y, self)
         self.avatar,self.place = avatar, place
         self.thing, self.x, self.y, self.m = place, x, y, self
 
-class Tar:
+class Tar(Cell):
     def leave(self,thing, action, reverse =0):
         self.place.talk('Youre STUCK!!!')
-        print('Youre STUCK!!!')
+        logger('Youre STUCK!!!')
     def __init__(self, avatar, place, x, y, **kw):
-        inherit(Cell(avatar, place, x, y, me=self),self)
+        #inherit(Cell(avatar, place, x, y, me=self),self)
+        Cell.__init__(self, avatar, place, x, y, self)
+        pass
 
-class Door:
+class Door(Cell):
     def __init__(self, avatar, place, x, y, **kw):
-        inherit(Cell(avatar, place, x, y, me=self),self)
+        #inherit(Cell(avatar, place, x, y, me=self),self)
+        Cell.__init__(self, avatar, place, x, y, self)
+        logger(dir(self))
+        self.thing, self.x, self.y, self.m = place, x, y, self
         place.x, place.y =  x, y
 
 class Entry:
@@ -54,9 +65,9 @@ class Entry:
     def get_position(self):
         return (self.x, self.y)
 
-class Trunk:
+class Trunk(Cell):
     def clear(self, load= None):
-        print( '%s.clear, position %d %d thing %s load %s'%(
+        logger( '%s.clear, position %d %d thing %s load %s'%(
             self.m, self.x, self.y, self.thing, load ))
         self.thing = load or PLACE#self.place
     def reset(self):
@@ -68,21 +79,21 @@ class Trunk:
         return (self.x, self.y)
     def enter(self,entry, destination ):
         self.place.talk('It is HEAVY!!')
-        print('It is HEAVY!!')
+        logger('It is HEAVY!!')
         entry.reset()
     def take(self,entry,direction ):
         self.place.talk('Hands Busy!!')
-        print('Hands Busy!!')
+        logger('Hands Busy!!')
         entry.reset()
     def _move(self, loc):
         self.place.clear()
         self.x, self.y = loc.x, loc.y
         self.place = loc
         loc.clear(self)
-        ##print( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
+        ##logger( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
         avatar = self.avatar
         mx, my = self.thing.get_real_position(x=loc.x, y=loc.y)
-        print( '%s(trunk).move, position %d %d  entry%s real %d %d'%(
+        logger( '%s(trunk).move, position %d %d  entry%s real %d %d'%(
             self.m,loc.x, loc.y, loc, mx, my))
         avatar.move(mx, my)
     def move_entry(self,loc):
@@ -109,11 +120,12 @@ class Trunk:
         self.move_entry = _move_entry
         self.heading = entry.heading
         self.entry = entry
-        print( '%s(trunk).pushed,thing %s entry %s destination %s direction %s'%(
+        logger( '%s(trunk).pushed,thing %s entry %s destination %s direction %s'%(
             self.m, self.thing, entry, destination, entry.heading))
         self.thing.push(self, entry)
     def __init__(self, avatar, place, x, y, **kw):
-        inherit(Cell(avatar, place, x, y, me=self),self)
+        #inherit(Cell(avatar, place, x, y, me=self),self)
+        Cell.__init__(self, avatar, place, x, y, self)
         self.avatar,self.place = avatar, place
         self.thing, self.x, self.y, self.m = place, x, y, self
     def rebase(self,base):
@@ -123,9 +135,9 @@ class Trunk:
         place.thing = self
         self.place = place
 
-class Rock:
+class Rock(Cell):
     def clear(self, load= None):
-        print( '%s.clear, position %d %d thing %s load %s'%(
+        logger( '%s.clear, position %d %d thing %s load %s'%(
             self.m, self.x, self.y, self.thing, load ))
         self.thing = load or PLACE#self.place
     def reset(self):
@@ -140,10 +152,10 @@ class Rock:
         self.x, self.y = loc.x, loc.y
         self.place = loc
         loc.clear(self)
-        ##print( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
+        ##logger( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
         avatar = self.avatar
         mx, my = self.thing.get_real_position(x=loc.x, y=loc.y)
-        print( '%s(rock).move, position %d %d  entry%s real %d %d'%(
+        logger( '%s(rock).move, position %d %d  entry%s real %d %d'%(
             self.m,loc.x, loc.y, loc, mx, my))
         avatar.move(mx, my)
     def move_entry(self,loc):
@@ -159,10 +171,10 @@ class Rock:
         entry.reset()
     def taken(self,entry, destination):
         self.place.talk('Too much heavy to take!!')
-        print('Too much Heavy to take!!')
+        logger('Too much Heavy to take!!')
         entry.reset()
     def enter(self,entry, destination ):
-        print('It is HEAVY!!')
+        logger('It is HEAVY!!')
         self.place.talk('It is HEAVY!!')
         entry.reset()
     def pushed(self,entry, destination ):
@@ -172,11 +184,12 @@ class Rock:
         self.move_entry = _move_entry
         self.heading = entry.heading
         self.entry = entry
-        print( '%s(rock).pushed,thing %s entry %s destination %s direction %s'%(
+        logger( '%s(rock).pushed,thing %s entry %s destination %s direction %s'%(
             self.m, self.thing, entry, destination, entry.heading))
         self.thing.push(self, entry)
     def __init__(self, avatar, place, x, y, **kw):
-        inherit(Cell(avatar, place, x, y, me=self),self)
+        Cell.__init__(self, avatar, place, x, y, self)
+        #inherit(Cell(avatar, place, x, y, me=self),self)
         self.avatar,self.place = avatar, place
         self.thing, self.x, self.y, self.m = place, x, y, self
     def rebase(self,base):
@@ -186,21 +199,22 @@ class Rock:
         place.thing = self
         self.place = place
 
-class Border:
+class Border(Cell):
     def enter(self,entry, destination ):
         self.place.talk('Cant go this way!!')
-        print('Cant go this way!!')
+        logger('Cant go this way!!')
         entry.reset()
     def pushed(self,entry, destination ):
         self.place.talk('Cant go this way!!')
-        print('Cant go this way!!')
+        logger('Cant go this way!!')
         entry.reset()
     def given(self,entry, destination ):
         self.place.talk('Cant give this way!!')
-        print('Cant give this way!!')
+        logger('Cant give this way!!')
         entry.reset()
     def __init__(self, avatar, place, x, y, **kw):
-        inherit(Cell(avatar, place, x, y, me=self),self)
+        #inherit(Cell(avatar, place, x, y, me=self),self)
+        Cell.__init__(self, avatar, place, x, y, self)
         self.thing, self.x, self.y, self.m = place, x, y, self
         self.place = place #Way(None,place, self.x, self.y)
         #self.avatar,self.place, self.x, self.y = avatar, place, x, y

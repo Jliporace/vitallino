@@ -18,6 +18,12 @@ if '__package__' in dir():
     from parts import Actor, Place
     from elements import *
     from kwarwp_factory import REPO
+    def _logger(*a):
+        print(a)
+    logger = _logger
+    pass
+else:
+    logger = log
     pass
     
 class NullSprite:
@@ -33,7 +39,7 @@ class Builder:
         door = place.plan[y][x]
         actor = Actor(gui.avatar(), door, x, y )
         place.actor = actor
-        print( 'place,init xy %s actor %s door %s'%((x,y), actor, door))
+        logger( 'place,init xy %s actor %s door %s'%((x,y), actor, door))
         actor.move(door)
         #actor.place = door
         #actor.thing = door
@@ -44,6 +50,7 @@ class Builder:
         gui.handler(33, actor.go_push)
         gui.handler(35, actor.go_take)
         gui.handler(36, actor.go_give)
+        
 
     def build_place(self,plan, gui, IV, solver):
         def line(y, row, me):
@@ -60,17 +67,19 @@ class Builder:
         border.extend(plan.split('\n'))
         border.extend([' '*w])
         self.plan = []
+        logger('self.plan = []')
         for y,row in enumerate(border):
             self.plan += [line(y,row, self.place)]
             for x,cell in enumerate(self.plan[y]):
                 cell.rebase(self.plan)
-        ##print(self.plan)
+        ##logger(self.plan)
         plan = self.plan
         self.place.plan = plan
+        logger('self.place.plan = plan')
         self.place.legend = gui.text('Welcome to Kuarup!',x=350,y=45,
             font_size=20,text_anchor="middle",
             style={"stroke":"gold", 'fill':"gold"})
-        print ([(p[1],p[1].x) for p in plan])
+        logger ([(p[1],p[1].x) for p in plan])
         return self.place
 
     def build_land(self, gui):
@@ -84,9 +93,13 @@ class Builder:
 
     def build(self, pn, gui, inventory, plan, solver):
         # Setup main scenario
+        logger('build(self, pn, gui, inventory, plan, solver)')
         self.build_land(gui)
+        logger('self.build_land')
         place = self.build_place(plan, gui, inventory, solver)
+        logger('self.build_place(plan, gui, inventory, solver)')
         self.build_actor(gui, place, place.x, place.y)
+        logger('self.build_actor(gui, place, place.x, place.y)')
         return place
     
     def build_inventory(self, FS = NullSprite):

@@ -18,6 +18,15 @@ WIND=[(0,-1),(1,0),(0,1),(-1,0)]
 PLACE = None
 NOTHING = None
 
+
+if '__package__' in dir():
+    def _logger(*a):
+        print(a)
+    logger = _logger
+    pass
+else:
+    logger = log
+
 def inherit(base, child):
     overriden, inherited = dir(child), dir(base)
     for member in inherited:
@@ -36,9 +45,9 @@ class Cell:
     def rebase(self,base):
         return None
     def move(self, loc):
-        print('nothing here, just dust!')
+        logger('nothing here, just dust!')
     def clear(self, load= None):
-        print( '%s.clear, position %d %d thing %s load %s'%(
+        logger( '%s.clear, position %d %d thing %s load %s'%(
             self.m, self.x, self.y, self.thing, load ))
         self.thing = load or PLACE#self.place
         self.m.thing = load or PLACE # self.place
@@ -48,21 +57,21 @@ class Cell:
         return self.place.get_position(x=x,y=y)
     def enter(self,entry, destination ):
         self.thing.enter(entry, destination)
-        print( '%s.enter,thing %s self %s destination %s'%(self.m, self.thing, self, destination))
+        logger( '%s.enter,thing %s self %s destination %s'%(self.m, self.thing, self, destination))
     def leave(self,entry, direction):
         self.place.leave(entry, direction)
     def pushed(self,entry, destination):
-        print( '%s.pushed,thing %s entry %s destination %s'%(self.m, self.thing, entry, destination))
+        logger( '%s.pushed,thing %s entry %s destination %s'%(self.m, self.thing, entry, destination))
         self.thing.pushed(entry, destination)
     def push(self,entry, direction):
         self.place.push(entry, direction)
     def taken(self,entry, destination):
-        print( '%s.taken,thing %s self %s destination %s'%(self.m, self.thing, self, destination))
+        logger( '%s.taken,thing %s self %s destination %s'%(self.m, self.thing, self, destination))
         self.thing.taken(entry, destination)
     def take(self,entry, direction):
         self.place.take(entry, direction)
     def given(self,entry, destination):
-        print( '%s.given,thing %s entry %s self %s destination %s'%(
+        logger( '%s.given,thing %s entry %s self %s destination %s'%(
             self.m, self.thing, entry, self, destination))
         self.thing.given(entry, destination)
     def give(self,entry, direction):
@@ -73,16 +82,16 @@ class Queuer:
         self.queue = []
         self.actor = actor
     def run_command(self, command, **keyword_parameters):
-        #print(command, keyword_parameters)
+        #logger(command, keyword_parameters)
         self.queue.append([command,keyword_parameters])
     def step(self):
         command,keyword_parameters = self.queue.pop(0)
         #command,keyword_parameters = self.queue[0]
-        print(command, keyword_parameters)
+        logger(command, keyword_parameters)
         PLACE.talk('')
         command(**keyword_parameters)
         if not self.queue:
-            print('New stepper: ', self.actor)
+            logger('New stepper: ', self.actor)
             self.actor.stop()
             
 
@@ -91,10 +100,12 @@ class Actor:
         pass
     def talk(self, message):
         PLACE.talk(message)
+    def leave(self,entry, direction):
+        self.place.leave(entry, direction)
     def clear(self, load=None):
-        print( '%s.clear, position %d %d thing, load %s %s'%(
+        logger( '%s.clear, position %d %d thing, load %s %s'%(
             self, self.x, self.y, self.thing, load ))
-        self.thing = load or NOTHING
+        self.thing = load or Nothing() #NOTHING
     def get_entry(self):
         return self
     def get_direction(self, back= False):
@@ -118,21 +129,22 @@ class Actor:
         self.x, self.y = loc.x, loc.y
         loc.clear(self)
         self.place = loc
-        ##print( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
+        ##logger( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
         avatar = self.avatar
         mx, my = self.place.get_real_position(x=loc.x, y=loc.y)
-        print( 'actor.move, position %d %d  entry%s real %d %d'%(loc.x, loc.y, loc, mx, my))
+        logger( 'actor.move, position %d %d  entry%s real %d %d'%(loc.x, loc.y, loc, mx, my))
         avatar.move(mx, my)
         self.thing.move(self)
     def run_command(self, command, **keyword_parameters):
         PLACE.talk('')
         command(**keyword_parameters)
     def stop(self):
-        print('Now stepper is : ', self)
+        logger('Now stepper is : ', self)
         self.stepper = self
     def _backward(self,a=0):
         self.thing.leave(entry = self, direction = self.set_direction(back=True))
     def _forward(self,a=0):
+        logger('_forward %s'%self.thing)
         self.thing.leave(entry = self, direction = self.set_direction())
     def _left(self,a=0):
         self.avatar.go_left()
@@ -147,7 +159,7 @@ class Actor:
     def _push(self,a=0):
         self.thing.push(entry = self, direction = self.set_direction())
     def go_step(self):
-        print('Stepper : %s'%self.stepper)
+        logger('Stepper : %s'%self.stepper)
         self.stepper.step()
     def go_backward(self,a=0):
         self.stepper.run_command(self._backward)
@@ -172,16 +184,16 @@ class Actor:
                 self.queue = []
                 self.actor = actor
             def run_command(self, command, **keyword_parameters):
-                #print(command, keyword_parameters)
+                #logger(command, keyword_parameters)
                 self.queue.append([command,keyword_parameters])
             def step(self):
                 command,keyword_parameters = self.queue.pop(0)
                 #command,keyword_parameters = self.queue[0]
-                print(command, keyword_parameters)
+                logger(command, keyword_parameters)
                 PLACE.talk('')
                 command(**keyword_parameters)
                 if not self.queue:
-                    print('New stepper: %s stepper %s'%( self.actor, self.actor.stepper))
+                    logger('New stepper: %s stepper %s'%( self.actor, self.actor.stepper))
                     self.actor.stepper = self.actor
                     self.actor.stop()
                     
@@ -189,27 +201,15 @@ class Actor:
         self.stepper.actor = self
         PLACE.solver(self)
     def __init__(self, avatar, place, x, y, **kw):
-        print( 'actor,init',avatar, place, x, y)
+        logger( 'actor,init',avatar, place, x, y)
         self.avatar, self.place, self.x, self.y = avatar, place, x, y
-        self.thing = NOTHING
+        self.thing =  Nothing()#NOTHING
         self.stepper = self
-        print( 'actor,init %d %d %s'%(self.x, self.y, dir(self.thing)))
+        logger( 'actor,init %d %d %s'%(self.x, self.y, dir(self.thing)))
         
-class Nothing:
-    def __init__(self, place):
-        global NOTHING
-        inherit(place,self)
-        NOTHING = self
-        self.place = place
-    def give(self,entry, direction):
-        print('nothing here, bare!')
-        #entry.give(destination)
-    def move(self, loc):
-        pass
-    
 class Place:
     def clear(self, load=None):
-        print( 'ERROR, SHOUlD NOT CALL')
+        logger( 'ERROR, SHOUlD NOT CALL')
         pass
     def get_position(self,x=0,y=0):
         return (x * 32 + 100 - 32, y * 32 + 100 -32)
@@ -223,20 +223,20 @@ class Place:
         locus = self.plan[py][px]
         return locus
     def taken(self,entry, destination):
-        #print('nothing here!')
+        #logger('nothing here!')
         entry.take(destination)
     def take(self,entry, direction):
         locus = self.get_next(entry, direction)
-        print( '%s.take locus %s entry %s dir %d lpos %d %d'%(
+        logger( '%s.take locus %s entry %s dir %d lpos %d %d'%(
             'Place', locus, entry, direction.get_direction(), locus.x,locus.y))
         locus.taken(entry, locus)
     def given(self,entry, destination):
-        print('place.given entry %s destination %s'%(entry, destination))
+        logger('place.given entry %s destination %s'%(entry, destination))
         #entry.given(entry, destination)
         entry.move(destination)
     def give(self,entry, direction):
         locus = self.get_next(entry, direction)
-        print( '%s.give locus %s entry %s dir %d lpos %d %d'%(
+        logger( '%s.give locus %s entry %s dir %d lpos %d %d'%(
             'Place', locus, entry, direction.get_direction(), locus.x,locus.y))
         locus.given(entry, locus)
     def pushed(self,entry, destination):
@@ -245,16 +245,17 @@ class Place:
         entry.move(destination)
     def leave(self,entry,direction):
         locus = self.get_next(entry, direction)
-        print( '%s.leave locus %s entry %s dir %d lpos %d %d'%(
+        logger( '%s.leave locus %s entry %s dir %d lpos %d %d'%(
             'Place', locus, entry, direction.get_direction(), locus.x,locus.y))
         locus.enter(entry, locus)
     def push(self,entry,direction):
         locus = self.get_next(entry, direction)
-        print( '%s.push locus %s entry %s thing %s lpos %d %d'%(
+        logger( '%s.push locus %s entry %s thing %s lpos %d %d'%(
             'Place', locus, entry, locus.thing, locus.x,locus.y))
         locus.pushed(entry, locus)
     def talk(self, message):
-        self.legend.textContent = message
+        self.legend.text = message
+        #logger(self.legend.textContent)
     def __init__(self, plan, solver):
         global PLACE
         PLACE = self
@@ -262,3 +263,14 @@ class Place:
         self.solver = solver
         self.legend = None
         self.nothing = Nothing(self)
+
+class Nothing(Place):
+    def __init__(self, place=None):
+        self.place = place or PLACE
+        self.plan = PLACE.plan
+    def give(self,entry, direction):
+        logger('nothing here, bare!')
+        #entry.give(destination)
+    def move(self, loc):
+        pass
+    

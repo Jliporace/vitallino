@@ -156,6 +156,7 @@ class TestMain(mocker.MockerTestCase):
     self._replay_and_create_place()
     B, A = 2,3
     assert isinstance(self.app.plan[1][B].thing, Actor),self.app.plan[1][B].thing
+    assert self.app.plan[1][B].thing.thing.leave,self.app.plan[1][B].thing.thing.leave
     self.app.actor.go_forward()
     self._check_after_move(A,B,C=Way,D=Door)
   def testa_cant_move_forward(self):

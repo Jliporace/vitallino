@@ -14,9 +14,18 @@ __author__  = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
 __version__ = "0.1 $Revision$"[10:-1]
 __date__    = "2013/01/09 $Date$"
 """
+def _logger(*a):
+    print(a)
+        
+
 if not '__package__' in dir():
     import svg
     from html import TEXTAREA
+    logger = log
+    pass
+else:
+    logger = _logger
+    pass
 
 REPO = 'public/image/%s'
 
@@ -74,7 +83,8 @@ class GUI:
         t = textarea( text,x,y,w,h,style)
         #t.setStyleAttribute('border',0)
         return t
-
+    def remove(self, element):
+        self.panel.removeChild(element)
     def text(self, text,x=150,y=25, font_size=22,text_anchor="middle",
       style= {}):
       element = svg.text(text,x=x,y=y,
@@ -160,7 +170,7 @@ class Avatar:
     def __init__(self,gui):
         VKHANDLER[37]=self.go_left
         VKHANDLER[39]=self.go_right
-        print( 'Avatar,init') 
+        logger( 'Avatar,init') 
         self.x, self.y = 0, 0
         self._load_images(REPO%'smkp-%s0%d.gif',gui)
         self.avatar = self.images[self.heading][self.current]
@@ -174,7 +184,7 @@ class Sprite:
     def move(self, x, y):
         #self.place, self.x, self.y = place, x, y
         #mx, my = place.get_real_position(x=self.x,y=self.y)
-        print( '%s,spr_move, real %d %d'%(self, x, y))
+        logger( '%s,spr_move, real %d %d'%(self, x, y))
         self._show(x, y)
     def __init__(self,gui, img, place, x, y):
         self.avatar = gui.image(href=REPO%img,
