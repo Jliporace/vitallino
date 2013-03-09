@@ -36,16 +36,13 @@ __date__    = "2013/01/09 $Date$"
 </script>
 <script type="text/python">
 #main(doc,doc['panel'], GUI(doc['panel']))
-web_main(doc, doc['panel'], GUI(doc['panel']))
+web_main(doc, doc['panel'], GUI(doc['panel'],doc['data']))
 
 </script>
 </head>
 <body onLoad="brython(1)">
 
-<table>
-<tr>
-<td id="data"></td>
-<td>
+<div id="data">
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
     width="800" height="600" style="border-style:solid;border-width:1;border-color:#000;">
     <pattern
@@ -183,9 +180,7 @@ web_main(doc, doc['panel'], GUI(doc['panel']))
        style="fill:none;stroke:#8243fb;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
   </g>
 </svg>
-</td>
-</tr>
-</table>
+</div>
 
 
 </body>

@@ -50,10 +50,39 @@ def eventify(owner):
     #alert('owner :'+owner)
     HANDLER[owner]()
 
+
+class Dialog:
+    def __init__(self, gui, img = REPO%'paje.png',  text = '', act = lambda x:None):
+        self._rect=gui.rect(0,100, 800, 440, style= {
+            'fillOpacity':'0.7', 'fill':'black'})
+        self._area=gui.textarea(text,80,130, 700, 400)
+        self._imag=gui.image(img,2,80, 32, 32)
+        self._imag.addEventListener('click', self.action)
+        self.act= act
+    def hide(self):
+        self._rect.style.visibility = 'hidden'
+        self._area.style.visibility = 'hidden'
+        self._imag.style.visibility = 'hidden'
+        #self._area.setVisible(self._area,False)
+    def show(self):
+        self._rect.style.visibility = 'visible'
+        self._area.style.visibility = 'visible'
+        self._imag.style.visibility = 'visible'
+        #self._area.setVisible(self._area,True)
+    def get_text(self):
+        return self._area.text
+    def set_text(self, text):
+        self._area.text = text
+    def action(self, event):
+        self.hide()
+        self.act(self)
+
+ 
 class GUI:
-    def __init__(self,panel):
+    def __init__(self,panel,data):
         self.args = {}
         self.panel =panel
+        self.data = data
         for child in panel: # iteration on child nodes
                 panel.remove(child)
         
@@ -73,14 +102,21 @@ class GUI:
     def textarea(self,text,x,y,w,h,style= {}):
         def dpx(d):
             return '%spx'%d
-        attrs = dict (position = 'absolute', float= 'left', left=dpx(x), top=dpx(y) ,
-            width=dpx(w) , height=dpx(h), color = 'navajowhite', background = 'transparent')
+        attrs = dict (position = 'absolute', top=dpx(y), left=dpx(x) ,
+            width=dpx(w) , height=dpx(h), color = 'navajowhite', border= 1,
+            resize = 'none', background = 'transparent')
+        attrs['top']= y
+        attrs = {'position' : 'absolute', 'top':dpx(y), 'left':dpx(x),
+            'width':dpx(w) , 'height':dpx(h), 'resize' : 'none','borderColor': 'darkslategrey',
+            'color': 'navajowhite', 'border': 1, 'background' : 'transparent' }
+        #t = TEXTAREA(text, style = {'position' : 'absolute', 'top':'100px', 'left':'40px'})#attrs)
         t = TEXTAREA(text, style = attrs)
-        #t.setStyleAttribute('border',0)
+        #d_rect=gui.rect(10,100, 540, 240, style= {'fill-opacity':'0.2', 'fill':'black'})
+        self.data <= t
         return t
     
-    def dialog(self,caption, text,x,y,w,h,style= {}):
-        t = textarea( text,x,y,w,h,style)
+    def dialog(self, text, img = REPO%'paje.png', act = lambda x:None):
+        t = Dialog(self,text=text, img=img, act=act)
         #t.setStyleAttribute('border',0)
         return t
     def remove(self, element):
@@ -133,7 +169,7 @@ class GUI:
     def over(self,handler):
       self._decorate(handler, onMouseOver=handler)
       return self
-        
+       
 class Avatar:
     def _load_images(self,img,gui):
         cardinames = [c for c in 'nesw']

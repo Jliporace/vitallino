@@ -17,7 +17,7 @@ __date__    = "2013/02/09 $Date$"
 if '__package__' in dir():
     from parts import Actor, Place
     from elements import *
-    from kwarwp_factory import REPO
+    from kwarwp_factory import REPO, Dialog
     def _logger(*a):
         print(a)
     logger = _logger
@@ -33,7 +33,6 @@ class NullSprite:
         pass
 
 class Builder:
-
     def build_actor(self, gui, place, x, y):
         #x, y = self.x, self.y
         door = place.plan[y][x]
@@ -41,6 +40,9 @@ class Builder:
         place.actor = actor
         logger( 'place,init xy %s actor %s door %s'%((x,y), actor, door))
         actor.move(door)
+        solv = 'def solver(a):\n    a.go_forward'
+        dialog = gui.dialog(text=solv, act = lambda dl: alert(dl.get_text()))
+        #dialog.hide()
         #actor.place = door
         #actor.thing = door
         gui.handler(13, actor.go_step)
