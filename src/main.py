@@ -14,7 +14,7 @@ __author__  = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
 __version__ = "0.1 $Revision$"[10:-1]
 __date__    = "2013/02/09 $Date$"
 """
-SIMPLE = ('..$$$&.**'+'.'*10+('\n'+'.'*19)*12)
+SIMPLE = ('..$$$&.!*'+'.'*10+('\n'+'.'*19)*12)
 #p = [['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)] for y, row in enumerate(border)]
 #ES,FS = NullSprite, Sprite
 

@@ -70,9 +70,9 @@ class Dialog:
         self._imag.style.visibility = 'visible'
         #self._area.setVisible(self._area,True)
     def get_text(self):
-        return self._area.text
+        return self._area.value
     def set_text(self, text):
-        self._area.text = text
+        self._area.value = text
     def action(self, event):
         self.hide()
         self.act(self)

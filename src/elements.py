@@ -22,6 +22,11 @@ if '__package__' in dir():
     pass
 else:
     logger = log
+
+import sys
+    
+def execution(code):
+    exec(code)
     
 def inherit(base, child):
     overriden, inherited = dir(child), dir(base)
@@ -32,7 +37,7 @@ def inherit(base, child):
     return base
 
 class Way(Cell):
-    def __init__(self, avatar, place, x, y, me=None, **kw):
+    def __init__(self, avatar, place, x, y, talk = '', me=None, **kw):
         #inherit(Cell(avatar, place, x, y, me=self),self)
         Cell.__init__(self, avatar, place, x, y, self)
         self.avatar,self.place = avatar, place
@@ -42,13 +47,13 @@ class Tar(Cell):
     def leave(self,thing, action, reverse =0):
         self.place.talk('Youre STUCK!!!')
         logger('Youre STUCK!!!')
-    def __init__(self, avatar, place, x, y, **kw):
+    def __init__(self, avatar, place, x, y, talk = '', **kw):
         #inherit(Cell(avatar, place, x, y, me=self),self)
         Cell.__init__(self, avatar, place, x, y, self)
         pass
 
 class Door(Cell):
-    def __init__(self, avatar, place, x, y, **kw):
+    def __init__(self, avatar, place, x, y, talk = '', **kw):
         #inherit(Cell(avatar, place, x, y, me=self),self)
         Cell.__init__(self, avatar, place, x, y, self)
         logger(dir(self))
@@ -123,7 +128,7 @@ class Trunk(Cell):
         logger( '%s(trunk).pushed,thing %s entry %s destination %s direction %s'%(
             self.m, self.thing, entry, destination, entry.heading))
         self.thing.push(self, entry)
-    def __init__(self, avatar, place, x, y, **kw):
+    def __init__(self, avatar, place, x, y, talk = '', **kw):
         #inherit(Cell(avatar, place, x, y, me=self),self)
         Cell.__init__(self, avatar, place, x, y, self)
         self.avatar,self.place = avatar, place
@@ -187,7 +192,7 @@ class Rock(Cell):
         logger( '%s(rock).pushed,thing %s entry %s destination %s direction %s'%(
             self.m, self.thing, entry, destination, entry.heading))
         self.thing.push(self, entry)
-    def __init__(self, avatar, place, x, y, **kw):
+    def __init__(self, avatar, place, x, y, talk = '', **kw):
         Cell.__init__(self, avatar, place, x, y, self)
         #inherit(Cell(avatar, place, x, y, me=self),self)
         self.avatar,self.place = avatar, place
@@ -212,9 +217,84 @@ class Border(Cell):
         self.place.talk('Cant give this way!!')
         logger('Cant give this way!!')
         entry.reset()
-    def __init__(self, avatar, place, x, y, **kw):
+    def __init__(self, avatar, place, x, y, talk = '', **kw):
         #inherit(Cell(avatar, place, x, y, me=self),self)
         Cell.__init__(self, avatar, place, x, y, self)
+        self.thing, self.x, self.y, self.m = place, x, y, self
+        self.place = place #Way(None,place, self.x, self.y)
+        #self.avatar,self.place, self.x, self.y = avatar, place, x, y
+
+class cons_out:
+
+    def __init__(self):
+        self.value = ''
+    def write(self,data):
+        self.value += str(data)
+        logger('self.value %s'%self.value)
+        
+class Talker(Rock):
+
+    def write(self,data):
+        self.value += str(data)
+
+    def _first_response(self, dialog):
+        value = self.value = cons_out()
+        sys_out, sys.stdout = sys.stdout, value
+        sys_err, sys.stderr = sys.stderr, value
+        logger('first response %s %s %s'%(dialog,sys.stdout,sys.stderr))
+        action = dialog.get_text()
+        action += self.challenge[1]
+        logger('first response code %s'%action)
+        #self.value = ''
+        try:
+            exec(action)
+            pass
+        except:
+            logger('first response error %s'%self.value.value)
+            self.challenge[0] = dialog.get_text()
+            dialog.set_text(self.value.value)
+            self._response = self._second_response
+            self.place.talk('Something went wrong in your attempt!!')
+            dialog.show()
+        else:
+            logger('first response else %s'%PLACE.plan[0][0])
+            self.challenge[0] = dialog.get_text()
+            self.move(PLACE.plan[0][0])
+            self.place.talk('It looks like you did it!!')
+            self._response = self._first_response
+        sys.stdout = sys_out
+        sys.stderr = sys_err
+        logger('first response value error %s'%self.value.value)
+            
+    def _second_response(self, dialog):
+        self._response = self._first_response
+        self.place.talk('Bump me again to retry the Challenge!!')
+           
+    def response(self, dialog):
+        self._response(dialog)
+    def _challenge(self, entry):
+        self.entry = entry
+        self._response = self._first_response
+        self.dialog = PLACE.dialog(text=self.challenge[0], act=self.response)
+        self.dialog.show()
+        
+    def enter(self,entry, destination ):
+        self.place.talk('There is a Challenge for you!!')
+        self._challenge(entry)
+        logger('Cant go this way!!')
+        entry.reset()
+    def pushed(self,entry, destination ):
+        self.place.talk('Cant go this way!!')
+        logger('Cant go this way!!')
+        entry.reset()
+    def given(self,entry, destination ):
+        self.place.talk('Cant give this way!!')
+        logger('Cant give this way!!')
+        entry.reset()
+    def __init__(self, avatar, place, x, y, talk = '', **kw):
+        #inherit(Cell(avatar, place, x, y, me=self),self)
+        Cell.__init__(self, avatar, place, x, y, self)
+        self.challenge = talk
         self.thing, self.x, self.y, self.m = place, x, y, self
         self.place = place #Way(None,place, self.x, self.y)
         #self.avatar,self.place, self.x, self.y = avatar, place, x, y

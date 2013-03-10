@@ -31,7 +31,33 @@ class NullSprite:
         pass
     def __init__(self, *a):
         pass
+CHALL1='''"""During Kuarup, Tchuk carried several trunks,
+noted down in several ways. Help Paje, the Shaman, to hit
+the final score of Tchuk, making the necessary conversions
+"""
+\nsmall_trunk = 1
+\naverage_trunks  = [2,3]
+\nlarge_trunk = "4"
+\ntotal  = small_trunk  + average_trunks + large_trunk\n
+'''
+TEST1 ='''
+\nassert total == 10, \'Your total was not 10, was %s\'%total \n'''    
+    
+    
 
+nCHALL1='''"""
+Durante o Kuarup, Tchuk carregou varios troncos,
+anotados de diversas maneiras. Ajude o Paje a acertar
+a pontuacao final de Tchuk, fazendo as conversoes necessarias
+"""
+\ntronco_pequeno = 1
+\ntroncos_medios = [2,3]
+\ntronco_grande = "4"
+\ntotal = tronco_pequeno + troncos_medios + tronco_grande\n'''
+nTEST1='''
+\nassert total == 10, \'O seu total nao foi 10, foi %s\'%total\n'''
+'''
+'''
 class Builder:
     def build_actor(self, gui, place, x, y):
         #x, y = self.x, self.y
@@ -42,7 +68,7 @@ class Builder:
         actor.move(door)
         solv = 'def solver(a):\n    a.go_forward'
         dialog = gui.dialog(text=solv, act = lambda dl: alert(dl.get_text()))
-        #dialog.hide()
+        dialog.hide()
         #actor.place = door
         #actor.thing = door
         gui.handler(13, actor.go_step)
@@ -57,10 +83,10 @@ class Builder:
     def build_place(self,plan, gui, IV, solver):
         def line(y, row, me):
             #x = ['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)]
-            PART, ICON, IMGE  = 0, 1, 2
-            #me = self.place
+            PART, ICON, IMGE, TALK  = 0, 1, 2, 3
             enum_row = enumerate(' %s '%row)
-            x = [IV[p][PART](IV[p][ICON](gui, IV[p][IMGE],me,x,y),me,x,y)
+            x = [IV[p][PART](
+                    IV[p][ICON](gui, IV[p][IMGE],me,x,y),me,x,y, IV[p][TALK])
                 for x, p in enum_row]
             return x
         self.place = Place([], solver)
@@ -82,6 +108,7 @@ class Builder:
             font_size=20,text_anchor="middle",
             style={"stroke":"gold", 'fill':"gold"})
         logger ([(p[1],p[1].x) for p in plan])
+        self.place.dialog = gui.dialog
         return self.place
 
     def build_land(self, gui):
@@ -106,6 +133,8 @@ class Builder:
     
     def build_inventory(self, FS = NullSprite):
         ES = NullSprite
-        return {'.':[Way,ES,None], ' ': [Border,ES,None], '&':[Door,ES,None]
-        , '@':[Tar,FS,'piche.gif'], '$':[Trunk,FS,'tronco.gif'], '*':[Rock,FS,'pedra.gif']}
+        tk =[CHALL1,TEST1]
+        return {'.':[Way,ES,None,tk], ' ': [Border,ES,None,tk], '&':[Door,ES,None,tk]
+        , '@':[Tar,FS,'piche.gif',tk], '$':[Trunk,FS,'tronco.gif',tk]
+        , '*':[Rock,FS,'pedra.gif',tk], '!':[Talker,FS,'paje.png',tk]}
     
