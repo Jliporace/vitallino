@@ -83,10 +83,10 @@ class Builder:
     def build_place(self,plan, gui, IV, solver):
         def line(y, row, me):
             #x = ['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)]
-            PART, ICON, IMGE, TALK  = 0, 1, 2, 3
+            PART, IMGE, TALK  = 0, 1, 2
             enum_row = enumerate(' %s '%row)
             x = [IV[p][PART](
-                    IV[p][ICON](gui, IV[p][IMGE],me,x,y),me,x,y, IV[p][TALK])
+                    self.sprite(gui, IV[p][IMGE],me,x,y),me,x,y, IV[p][TALK])
                 for x, p in enum_row]
             return x
         self.place = Place([], solver)
@@ -132,9 +132,10 @@ class Builder:
         return place
     
     def build_inventory(self, FS = NullSprite):
+        self.sprite = FS
         ES = NullSprite
         tk =[CHALL1,TEST1]
-        return {'.':[Way,ES,None,tk], ' ': [Border,ES,None,tk], '&':[Door,ES,None,tk]
-        , '@':[Tar,FS,'piche.gif',tk], '$':[Trunk,FS,'tronco.gif',tk]
-        , '*':[Rock,FS,'pedra.gif',tk], '!':[Talker,FS,'paje.png',tk]}
+        return {'.':[Way,None,tk], ' ': [Border,None,tk], '&':[Door,None,tk]
+        , '@':[Tar,'piche.gif',tk], '$':[Trunk,'tronco.gif',tk]
+        , '*':[Rock,'pedra.gif',tk], '!':[Talker,'paje.png',tk]}
     

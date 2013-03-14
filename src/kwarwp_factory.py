@@ -210,7 +210,15 @@ class Avatar:
         self.x, self.y = 0, 0
         self._load_images(REPO%'smkp-%s0%d.gif',gui)
         self.avatar = self.images[self.heading][self.current]
-
+    
+class NullAvatar:
+    def move(self, x, y):
+        pass
+    def setAttribute(self, a,b):
+        pass
+    def __init__(self, *a):
+        pass
+NULLAVATAR = NullAvatar()
 class Sprite:
     def _show(self, x, y):
         lx, ly = x, y
@@ -223,19 +231,16 @@ class Sprite:
         logger( '%s,spr_move, real %d %d'%(self, x, y))
         self._show(x, y)
     def __init__(self,gui, img, place, x, y):
-        self.avatar = gui.image(href=REPO%img,
-                    x=100,y=100, width=32,height=32)
-        mx, my = place.get_real_position(x=x,y=y)
-        self.move(mx, my)
+        if not (img is None):
+            self.avatar = gui.image(href=REPO%img,
+                        x=100,y=100, width=32,height=32)
+            mx, my = place.get_real_position(x=x,y=y)
+            self.move(mx, my)
+        else:
+            self.avatar = NULLAVATAR
     
 class NullSprite:
     def move(self, place,x,y):
-        pass
-    def __init__(self, *a):
-        pass
-    
-class NullAvatar:
-    def setAttribute(self, a,b):
         pass
     def __init__(self, *a):
         pass

@@ -201,8 +201,8 @@ class TestMain(mocker.MockerTestCase):
     "move forward and back"
     self._expect_all_place()
     expect(self.ma.get_direction()).result(1).count(4)
-    expect(self.ma.move(ARGS))
-    expect(self.ma.move(ARGS))
+    expect(self.ma.move(164,100))
+    expect(self.ma.move(132,100))
     self._replay_and_create_place()
     B, A = 3,2
     print('NOW MOVING FORE')
