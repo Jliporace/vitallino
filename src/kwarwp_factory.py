@@ -233,3 +233,9 @@ class NullSprite:
         pass
     def __init__(self, *a):
         pass
+    
+class NullAvatar:
+    def setAttribute(self, a,b):
+        pass
+    def __init__(self, *a):
+        pass

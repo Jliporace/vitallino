@@ -16,6 +16,7 @@ __date__    = "2013/02/09 $Date$"
 """
 if '__package__' in dir():
     from parts import Cell
+    import parts
     def _logger(*a):
         print(a)
     logger = _logger
@@ -230,7 +231,7 @@ class cons_out:
         self.value = ''
     def write(self,data):
         self.value += str(data)
-        logger('self.value %s'%self.value)
+        #logger('self.value %s'%self.value)
         
 class Talker(Rock):
 
@@ -257,9 +258,9 @@ class Talker(Rock):
             self.place.talk('Something went wrong in your attempt!!')
             dialog.show()
         else:
-            logger('first response else %s'%PLACE.plan[0][0])
+            logger('first response else %s'%self.world.plan[0][0])
             self.challenge[0] = dialog.get_text()
-            self.move(PLACE.plan[0][0])
+            self.move(self.world.plan[0][0])
             self.place.talk('It looks like you did it!!')
             self._response = self._first_response
         sys.stdout = sys_out
@@ -275,7 +276,7 @@ class Talker(Rock):
     def _challenge(self, entry):
         self.entry = entry
         self._response = self._first_response
-        self.dialog = PLACE.dialog(text=self.challenge[0], act=self.response)
+        self.dialog = self.world.dialog(text=self.challenge[0], act=self.response)
         self.dialog.show()
         
     def enter(self,entry, destination ):
@@ -297,5 +298,6 @@ class Talker(Rock):
         self.challenge = talk
         self.thing, self.x, self.y, self.m = place, x, y, self
         self.place = place #Way(None,place, self.x, self.y)
+        self.world = self.place
         #self.avatar,self.place, self.x, self.y = avatar, place, x, y
 

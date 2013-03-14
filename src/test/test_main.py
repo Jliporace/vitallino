@@ -172,6 +172,21 @@ class TestMain(mocker.MockerTestCase):
     assert isinstance(self.app.plan[1][B].thing, Actor),self.app.plan[1][B].thing
     self.app.actor.go_forward()
     self._check_after_move(A,B,C=Door,D=Door, P=Actor)
+  def testa_bump_into_notice_issuer(self):
+    "issue note by bumping into talker"
+    self._expect_all_place()
+    expect(self.ma.get_direction()).result(1).count(2)
+    expect(self.ma.move(ARGS))
+    expect(self.mg.show())
+    expect(self.mg.get_text()).result('total = 10').count(2)
+    self._replay_and_create_place('.&!')
+    B, A = 2,2
+    talker = self.app.plan[1][3].thing
+    assert isinstance(self.app.plan[1][B].thing, Actor),self.app.plan[1][B].thing
+    self.app.actor.go_forward()
+    talker.response(self.mg)
+    assert talker.x ==0, "Talker did not move to zero but remained at %d"%talker.x
+    self._check_after_move(A,B,C=Door,D=Door, P=Actor)
   def testa_cant_move_into_rock(self):
     "cant move into_rock"
     self._expect_all_place()
