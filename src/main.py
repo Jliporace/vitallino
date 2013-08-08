@@ -33,6 +33,7 @@ def main(pn, gui, spr = None, plan= SIMPLE, solver=solver):
 
 def web_main(dc,pn, gui, spr = None, plan= SIMPLE, solver=solver):
     #from kwarwp_factory import Sprite
+    return
     builder = Builder()
     place = builder.build(
         pn, gui, builder.build_inventory(FS = Sprite), plan, solver)
