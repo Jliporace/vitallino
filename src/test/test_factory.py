@@ -22,7 +22,7 @@ import mocker
 from mocker import Mocker,KWARGS, ARGS, ANY, CONTAINS, MATCH, expect
 from kwarwp import Place,Way,Border,Door,Tar,Trunk
 
-class TestPyjama(mocker.MockerTestCase):
+class NOestPyjama:  # (mocker.MockerTestCase):
   """Testes unitários para o Pyjamas"""
   def __list(self):
         #INVENTORY = {'.':Way, ' ': Border, '&':Door, '@':Tar, '%':Border}
