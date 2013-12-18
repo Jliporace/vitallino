@@ -14,7 +14,7 @@ __author__  = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
 __version__ = "0.1 $Revision$"[10:-1]
 __date__    = "2013/02/09 $Date$"
 """
-if '__package__' in dir():
+if True:  # '__package__' in dir():
     from parts import Actor, Place
     from elements import *
     from kwarwp_factory import REPO, Dialog
@@ -25,7 +25,7 @@ if '__package__' in dir():
     logger = _logger
     pass
 else:
-    logger = log
+    #logger = log
     pass
 
 
@@ -85,11 +85,13 @@ class Builder:
         gui.handler(35, actor.go_take)
         gui.handler(36, actor.go_give)
 
-    def build_place(self, plan, gui, IV, solver):
+    def build_place(self, plan, gui, iv, solver):
         def line(y, row, me):
             #x = ['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)]
             PART, IMGE, TALK = 0, 1, 2
             enum_row = enumerate(' %s ' % row)
+            print("build_place_load(self, plan, gui, iv):", iv)
+            IV = iv
             x = [IV[p][PART](
                 self.sprite(gui, IV[p][IMGE], me, x, y), me, x, y, IV[p][TALK])
                 for x, p in enum_row]

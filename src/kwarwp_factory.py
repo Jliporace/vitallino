@@ -14,22 +14,23 @@ __author__  = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
 __version__ = "0.1 $Revision$"[10:-1]
 __date__    = "2013/01/09 $Date$"
 """
+ND = {}
 
 
 def _logger(*a):
     print(a)
 
-
+"""
 if not '__package__' in dir():
     import svg
     from html import TEXTAREA
 
-    logger = log
+    #logger = log
     pass
 else:
     logger = _logger
     pass
-
+"""
 REPO = 'public/image/%s'
 
 
@@ -52,9 +53,10 @@ def jshandler(event):
         VKHANDLER[code]()
         #alert(event.keyCode)
 
-
+'''
 if not '__package__' in dir():
     doc.onkeypress = jshandler
+'''
 
 
 def eventify(owner):
@@ -95,8 +97,9 @@ class Dialog:
 
 
 class GUI:
-    def __init__(self, panel, data):
+    def __init__(self, panel, data, gui):
         self.args = {}
+        self.gui, self.svg, self.html = gui, gui.SVG, gui.HTML
         self.panel = panel
         self.data = data
         for child in panel:  # iteration on child nodes
@@ -115,7 +118,7 @@ class GUI:
             args = ''
         return args
 
-    def textarea(self, text, x, y, w, h, style={}):
+    def textarea(self, text, x, y, w, h, style=ND):
         def dpx(d):
             return '%spx' % d
 
@@ -127,7 +130,7 @@ class GUI:
                  'width': dpx(w), 'height': dpx(h), 'resize': 'none', 'borderColor': 'darkslategrey',
                  'color': 'navajowhite', 'border': 1, 'background': 'transparent'}
         #t = TEXTAREA(text, style = {'position' : 'absolute', 'top':'100px', 'left':'40px'})#attrs)
-        t = TEXTAREA(text, style=attrs)
+        t = self.html.TEXTAREA(text, style=attrs)
         #d_rect=gui.rect(10,100, 540, 240, style= {'fill-opacity':'0.2', 'fill':'black'})
         self.data <= t
         return t
@@ -141,27 +144,27 @@ class GUI:
         self.panel.removeChild(element)
 
     def text(self, text, x=150, y=25, font_size=22, text_anchor="middle",
-             style={}):
+             style=ND):
         element = svg.text(text, x=x, y=y,
                            font_size=font_size, text_anchor=text_anchor,
                            style=style)
         self.panel <= element
         return element
 
-    def path(self, d, style={}, onMouseOver="noop", onMouseOut="noop"):
-        exec('element = svg.path(d=%s,style=%s%s)' % (
+    def path(self, d, style=ND, onMouseOver="noop", onMouseOut="noop", element=None):
+        exec('element = self.svg.path(d=%s,style=%s%s)' % (
             str(d), str(style), self.get_args()))
         self.panel <= element
         return element
 
-    def image(self, href, x=0, y=0, width=100, height=50):
-        exec('element = svg.image(href="%s", x=%i, y=%i, width=%i, height=%i%s)' % (
+    def image(self, href, x=0, y=0, width=100, height=50, element=None):
+        exec('element = self.svg.image(href="%s", x=%i, y=%i, width=%i, height=%i%s)' % (
             href, x, y, width, height, self.get_args()))
         self.panel <= element
         return element
 
-    def rect(self, x=0, y=0, width=100, height=50, style={}):
-        exec('element = svg.rect(x=%i, y=%i, width=%i, height=%i,style=%s%s)' % (
+    def rect(self, x=0, y=0, width=100, height=50, style=ND, element=None):
+        exec('element = self.svg.rect(x=%i, y=%i, width=%i, height=%i,style=%s%s)' % (
             x, y, width, height, str(style), self.get_args()))
         self.panel <= element
         return element

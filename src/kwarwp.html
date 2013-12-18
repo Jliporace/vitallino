@@ -19,24 +19,30 @@ __date__    = "2013/01/09 $Date$"
 <html>
 <head>
 <meta charset="iso-8859-1">
-<script src="../brython.js"></script>
+<script src="../../lib/brython3/brython.js"></script>
 <script type="text/javascript">
     var jsptdate = new Date();
     function jsptrand(){ return Number(Math.floor(Math.random()*1001))}
 </script>
+    <!--
 <script type="text/python" src="kwarwp_factory.py">
 </script>
 <script type="text/python" src="parts.py">
 </script>
 <script type="text/python" src="elements.py">
 </script>
-<script type="text/python" src="builder.py">
-</script>
+-->
 <script type="text/python" src="main.py">
 </script>
 <script type="text/python">
+from browser import doc, html, svg
+class Brython:
+    HTML=html
+    SVG=svg
+
 #main(doc,doc['panel'], GUI(doc['panel']))
-web_main(doc, doc['panel'], GUI(doc['panel'],doc['data']))
+#web_main(doc, doc['panel'], GUI(doc['panel'],doc['data']))
+web_main(doc, doc['panel'], Brython)
 
 </script>
 </head>

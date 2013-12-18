@@ -288,11 +288,13 @@ class Place:
         self.plan = []
         self.pos = (0, 0)
 
-    def _load(self, plan, gui, IV):
+    def _load(self, plan, gui, iv):
         def line(y, row):
             #x = ['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)]
             PART, ICON, IMGE = 0, 1, 2
             me = self
+            print("_load(self, plan, gui, iv):", iv)
+            IV = iv
             x = [IV[p][PART](IV[p][ICON](gui, IV[p][IMGE], me, x, y), me, x, y)
                  for x, p in enumerate(' %s ' % row)]
             return x

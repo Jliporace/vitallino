@@ -14,8 +14,8 @@ __author__  = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
 __version__ = "0.2 $Revision$"[10:-1]
 __date__    = "2013/02/09 $Date$"
 """
-if '__package__' in dir():
-    from parts import Cell
+if True:  # '__package__' in dir():
+    from parts import Cell, PLACE
     import parts
 
     def _logger(*a):
@@ -24,8 +24,7 @@ if '__package__' in dir():
     logger = _logger
     pass
 else:
-    logger = log
-
+    pass  # logger = log
 import sys
 
 
