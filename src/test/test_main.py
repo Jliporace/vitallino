@@ -2,20 +2,20 @@
 # -*- coding: UTF8 -*-
 """
 ############################################################
-Pygame Factory : Gui interface to pygame
+Vitallino - Criador de Jogos Simplificado
 ############################################################
 
 :Author: *Carlo E. T. Oliveira*
 :Contact: carlo@nce.ufrj.br
 :Date: $Date: 2013/02/27  $
 :Status: This is a "work in progress"
-:Revision: $Revision: 0.1 $
+:Revision: $Revision: 0.3 $
 :Home: `Labase <http://labase.nce.ufrj.br/>`__
 :Copyright: ©2011, `GPL <http://is.gd/3Udt>`__. 
 """
 __author__ = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
-__version__ = "0.1 $Revision$"[10:-1]
-__date__ = "2013/02/02 $Date$"
+__version__ = "0.3 $Revision$"[10:-1]
+__date__ = "2014/02/06 $Date$"
 
 import mocker
 from mocker import Mocker, KWARGS, ARGS, expect  # , ANY, CONTAINS, MATCH

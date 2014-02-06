@@ -7,25 +7,22 @@ Vitallino - Criador de Jogos Simplificado
 :Contact: carlo@nce.ufrj.br
 :Date: $Date: 2013/02/27  $
 :Status: This is a "work in progress"
-:Revision: $Revision: 0.2 $
+:Revision: $Revision: 0.3 $
 :Home: `Labase http://labase.nce.ufrj.br/`__
 :Copyright: 2011, `GPL http://is.gd/3Udt`__. 
 __author__  = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
-__version__ = "0.2 $Revision$"[10:-1]
-__date__    = "2013/02/09 $Date$"
+__version__ = "0.3 $Revision$"[10:-1]
+__date__    = "2014/02/06 $Date$"
 """
-if True:  # '__package__' in dir():
-    from parts import Cell, PLACE
-    #import parts
-
-    def _logger(*a):
-        print(a)
-
-    logger = _logger
-    pass
-else:
-    pass  # logger = log
+from parts import Cell, PLACE
 import sys
+#import parts
+
+
+def _logger(*a):
+    print(a)
+
+logger = _logger
 ZL = []
 
 
@@ -160,7 +157,7 @@ class Trunk(Cell):
     def __init__(self, avatar, place, x, y, talk='', **kw):
         #inherit(Cell(avatar, place, x, y, me=self),self)
         Cell.__init__(self, avatar, place, x, y, self)
-        self.move_entry = self.heading = self.entry = None
+        self.heading = self.entry = None
         self.avatar, self.place = avatar, place
         self.thing, self.x, self.y, self.m = place, x, y, self
 
@@ -283,8 +280,6 @@ class cons_out:
     def write(self, data):
         self.value += str(data)
         #logger('self.value %s'%self.value)
-
-import traceback
 
 
 class Talker(Rock):

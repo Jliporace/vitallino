@@ -20,17 +20,6 @@ ND = {}
 def _logger(*a):
     print(a)
 
-"""
-if not '__package__' in dir():
-    import svg
-    from html import TEXTAREA
-
-    #logger = log
-    pass
-else:
-    logger = _logger
-    pass
-"""
 REPO = 'public/image/%s'
 
 
@@ -41,22 +30,12 @@ def noop(nop=''):
 HANDLER = {"_NOOP_": 'noop()'}
 VKHANDLER = dict([(k, noop) for k in range(32, 40)])
 
-'''
-def uuid():
-    r = jsptrand()
-    return '%i' % (JSObject(jsptdate).getTime() * 1000 + r)
-'''
 
 def jshandler(event):
     code = event.keyCode
     if code in VKHANDLER:
         VKHANDLER[code]()
         #alert(event.keyCode)
-
-'''
-if not '__package__' in dir():
-    doc.onkeypress = jshandler
-'''
 
 
 def eventify(owner):
@@ -98,6 +77,7 @@ class Dialog:
 
 class GUI:
     def __init__(self, panel, data, gui):
+        self.handler_id = 0
         self.args = {}
         self.gui, self.svg, self.html = gui, gui.SVG, gui.HTML
         self.panel = panel
@@ -179,7 +159,7 @@ class GUI:
         self.args = {}  # kw #dict(kw)
         #alert(' '.join([k for k,v in kw.items()]))
         for key, value in kw.items():
-            handler_id = uuid()
+            handler_id, self.handler_id = self.handler_id, self.handler_id + 1
             HANDLER[handler_id] = handler
             self.args[key] = handler_id
             #alert(key+':'+ self.args[key])

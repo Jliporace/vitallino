@@ -23,7 +23,7 @@ KG_DEST = '/home/carlo/Dropbox/Public/labase/kwarwp'
 SOURCES = '*.py'
 KSOURCES = 'kuarup.py tchuk.py kuarupfest.py tkinter_factory.py'
 KG_IMAGES = '/home/carlo/Dropbox/Android/git/vitallino/src/public/image'
-PARTS = '/src/kwarwp.html /src/*.py /src/public/image/*.* /brython.js /libs/*.js'.split()
+PARTS = '/src/kwarwp.html /src/*.py /src/public/image/*.*'.split()
 DESTS = '/src /src /src/public/image / /libs'.split()
 def hello():
     print("Hello world!")
@@ -40,10 +40,6 @@ def _nk_copy():
     targ = KG_DEST+'/src'
     _do_copy(KSOURCES,targ)
     targ =  KG_DEST +'/src/public/image'
-    _do_copy(KG_IMAGES,targ)
-    targ = KG_DEST+'/brython.js'
-    _do_copy(KSOURCES,targ)
-    targ =  KG_DEST +'/libs'
     _do_copy(KG_IMAGES,targ)
 
 def _k_copy():

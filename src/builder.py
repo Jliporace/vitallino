@@ -7,26 +7,22 @@ Vitallino - Criador de Jogos Simplificado
 :Contact: carlo@nce.ufrj.br
 :Date: $Date: 2013/02/27  $
 :Status: This is a "work in progress"
-:Revision: $Revision: 0.1 $
+:Revision: $Revision: 0.3 $
 :Home: `Labase http://labase.nce.ufrj.br/`__
 :Copyright: 2011, `GPL http://is.gd/3Udt`__. 
 __author__  = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
-__version__ = "0.1 $Revision$"[10:-1]
-__date__    = "2013/02/09 $Date$"
+__version__ = "0.3 $Revision$"[10:-1]
+__date__    = "2014/02/06 $Date$"
 """
-if True:  # '__package__' in dir():
-    from parts import Actor, Place
-    from elements import *
-    from kwarwp_factory import REPO, Dialog
+from parts import Actor, Place
+from elements import *
+from kwarwp_factory import REPO
 
-    def _logger(*a):
-        print(a)
 
-    logger = _logger
-    pass
-else:
-    #logger = log
-    pass
+def _logger(*a):
+    print(a)
+
+logger = _logger
 
 
 class NullSprite:
@@ -65,6 +61,9 @@ nTEST1 = '''
 
 
 class Builder:
+    def __init__(self):
+        self.place = self.plan = self.sprite = None
+
     def build_actor(self, gui, place, x, y):
         #x, y = self.x, self.y
         door = place.plan[y][x]
@@ -73,7 +72,7 @@ class Builder:
         logger('place,init xy %s actor %s door %s' % ((x, y), actor, door))
         actor.move(door)
         solv = 'def solver(a):\n    a.go_forward'
-        dialog = gui.dialog(text=solv, act=lambda dl: alert(dl.get_text()))
+        dialog = gui.dialog(text=solv, act=lambda dl: logger(dl.get_text()))
         dialog.hide()
         #actor.place = door
         #actor.thing = door

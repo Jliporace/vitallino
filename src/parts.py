@@ -7,34 +7,22 @@ Vitallino - Criador de Jogos Simplificado
 :Contact: carlo@nce.ufrj.br
 :Date: $Date: 2013/02/27  $
 :Status: This is a "work in progress"
-:Revision: $Revision: 0.1 $
+:Revision: $Revision: 0.3 $
 :Home: `Labase http://labase.nce.ufrj.br/`__
 :Copyright: 2013, `GPL http://is.gd/3Udt`__. 
 __author__  = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
-__version__ = "0.1 $Revision$"[10:-1]
-__date__    = "2013/02/09 $Date$"
+__version__ = "0.3 $Revision$"[10:-1]
+__date__    = "2014/02/06 $Date$"
 """
 WIND = [(0, -1), (1, 0), (0, 1), (-1, 0)]
 PLACE = None
 NOTHING = None
 
-if True:  # '__package__' in dir():
-    def _logger(*a):
-        print(a)
 
-    logger = _logger
-    pass
-else:
-    pass  # logger = log
+def _logger(*a):
+    print(a)
 
-
-def inherit(base, child):
-    overriden, inherited = dir(child), dir(base)
-    for member in inherited:
-        if member not in overriden:
-            setattr(child, member, getattr(base, member))
-        #child.m =  str(child.__class__)
-    return base
+logger = _logger
 
 
 class Cell:
@@ -256,6 +244,7 @@ class Actor:
 
     def __init__(self, avatar, place, x, y, **kw):
         logger('actor,init', avatar, place, x, y)
+        self.queue = self.actor = self.heading = self.back = None
         self.avatar, self.place, self.x, self.y = avatar, place, x, y
         self.thing = Nothing()
         self.stepper = self
@@ -326,6 +315,7 @@ class Place:
 
     def __init__(self, plan, solver):
         global PLACE
+        self.pos = self.x = self.y = None
         PLACE = self
         self.plan = plan
         self.solver = solver
@@ -335,6 +325,7 @@ class Place:
 
 class Nothing(Place):
     def __init__(self, place=None):
+        #Place.__init__(self, PLACE.plan, None)
         self.place = place or PLACE
         self.plan = PLACE.plan
 

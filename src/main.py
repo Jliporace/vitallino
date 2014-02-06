@@ -7,12 +7,12 @@ Vitallino - Criador de Jogos Simplificado
 :Contact: carlo@nce.ufrj.br
 :Date: $Date: 2013/02/09  $
 :Status: This is a "work in progress"
-:Revision: $Revision: 0.1 $
+:Revision: $Revision: 0.3 $
 :Home: `Labase http://labase.nce.ufrj.br/`__
 :Copyright: 2011, `GPL http://is.gd/3Udt`__. 
 __author__  = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
-__version__ = "0.1 $Revision$"[10:-1]
-__date__    = "2013/02/09 $Date$"
+__version__ = "0.3 $Revision$"[10:-1]
+__date__    = "2014/02/06 $Date$"
 """
 from builder import Builder
 from kwarwp_factory import Sprite, GUI
@@ -29,18 +29,16 @@ def solver(a):
 
 
 def main(pn, gui, spr=None, plan=SIMPLE, solver=solver):
-    import builder
-
-    builder = builder.Builder()
-    return builder.build(pn, gui, builder.build_inventory(FS=spr), plan, solver)
+    _builder = Builder()
+    return _builder.build(pn, gui, _builder.build_inventory(FS=spr), plan, solver)
 
 
 def web_main(dc, pn, gui=None, spr=None, plan=SIMPLE, solver=solver):
     #from kwarwp_factory import Sprite
     gui = GUI(dc['panel'], dc['data'], gui)
-    builder = Builder()
-    place = builder.build(
-        pn, gui, builder.build_inventory(FS=Sprite), plan, solver)
+    _builder = Builder()
+    place = _builder.build(
+        pn, gui, _builder.build_inventory(FS=Sprite), plan, solver)
 
     dc['for'].addEventListener("click", place.actor.go_forward)
     dc['lef'].addEventListener("click", place.actor.go_left)
