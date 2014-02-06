@@ -16,7 +16,7 @@ __date__    = "2013/02/09 $Date$"
 """
 if True:  # '__package__' in dir():
     from parts import Cell, PLACE
-    import parts
+    #import parts
 
     def _logger(*a):
         print(a)
@@ -26,6 +26,7 @@ if True:  # '__package__' in dir():
 else:
     pass  # logger = log
 import sys
+ZL = []
 
 
 def execution(code):
@@ -159,6 +160,7 @@ class Trunk(Cell):
     def __init__(self, avatar, place, x, y, talk='', **kw):
         #inherit(Cell(avatar, place, x, y, me=self),self)
         Cell.__init__(self, avatar, place, x, y, self)
+        self.move_entry = self.heading = self.entry = None
         self.avatar, self.place = avatar, place
         self.thing, self.x, self.y, self.m = place, x, y, self
 
@@ -173,7 +175,7 @@ class Trunk(Cell):
 class Rock(Cell):
     def clear(self, load=None):
         logger('%s.clear, position %d %d thing %s load %s' % (
-            self.m, self.x, self.y, self.thing, load ))
+            self.m, self.x, self.y, self.thing, load))
         self.thing = load or PLACE  # self.place
 
     def reset(self):
@@ -237,6 +239,7 @@ class Rock(Cell):
 
     def __init__(self, avatar, place, x, y, talk='', **kw):
         Cell.__init__(self, avatar, place, x, y, self)
+        self.move_entry = self.heading = self.entry = None
         #inherit(Cell(avatar, place, x, y, me=self),self)
         self.avatar, self.place = avatar, place
         self.thing, self.x, self.y, self.m = place, x, y, self
@@ -281,6 +284,8 @@ class cons_out:
         self.value += str(data)
         #logger('self.value %s'%self.value)
 
+import traceback
+
 
 class Talker(Rock):
     def write(self, data):
@@ -298,19 +303,28 @@ class Talker(Rock):
         try:
             exec(action)
             pass
-        except:
-            logger('first response error %s' % self.value.value)
-            self.challenge[0] = dialog.get_text()
-            dialog.set_text(self.value.value)
-            self._response = self._second_response
-            self.place.talk('Something went wrong in your attempt!!')
-            dialog.show()
-        else:
-            logger('first response else %s' % self.world.plan[0][0])
+            logger('first correct response: else %s' % self.world.plan[0][0])
             self.challenge[0] = dialog.get_text()
             self.move(self.world.plan[0][0])
             self.place.talk('It looks like you did it!!')
             self._response = self._first_response
+        except Exception as exc:
+            logger('first response exception error %s %s' % (exc, self.value.value))
+            #traceback.print_exc()
+            self.challenge[0] = dialog.get_text()
+            dialog.set_text(str(exc) + ' ' + self.value.value)
+            self._response = self._second_response
+            self.place.talk('Something went wrong in your attempt!!')
+            dialog.show()
+        else:
+            '''
+            logger('first correct response: else %s' % self.world.plan[0][0])
+            self.challenge[0] = dialog.get_text()
+            self.move(self.world.plan[0][0])
+            self.place.talk('It looks like you did it!!')
+            self._response = self._first_response
+            '''
+            pass
         sys.stdout = sys_out
         sys.stderr = sys_err
         logger('first response value error %s' % self.value.value)
@@ -331,7 +345,7 @@ class Talker(Rock):
     def enter(self, entry, destination):
         self.place.talk('There is a Challenge for you!!')
         self._challenge(entry)
-        logger('Cant go this way!!')
+        logger('Bumped into Talker!!')
         entry.reset()
 
     def pushed(self, entry, destination):
@@ -344,7 +358,8 @@ class Talker(Rock):
         logger('Cant give this way!!')
         entry.reset()
 
-    def __init__(self, avatar, place, x, y, talk='', **kw):
+    def __init__(self, avatar, place, x, y, talk=ZL, **kw):
+        self.value = self.entry = self._response = self.dialog = None
         #inherit(Cell(avatar, place, x, y, me=self),self)
         Cell.__init__(self, avatar, place, x, y, self)
         self.challenge = talk
@@ -352,4 +367,3 @@ class Talker(Rock):
         self.place = place  # Way(None,place, self.x, self.y)
         self.world = self.place
         #self.avatar,self.place, self.x, self.y = avatar, place, x, y
-

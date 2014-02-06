@@ -41,11 +41,11 @@ def noop(nop=''):
 HANDLER = {"_NOOP_": 'noop()'}
 VKHANDLER = dict([(k, noop) for k in range(32, 40)])
 
-
+'''
 def uuid():
     r = jsptrand()
     return '%i' % (JSObject(jsptdate).getTime() * 1000 + r)
-
+'''
 
 def jshandler(event):
     code = event.keyCode
@@ -145,9 +145,9 @@ class GUI:
 
     def text(self, text, x=150, y=25, font_size=22, text_anchor="middle",
              style=ND):
-        element = svg.text(text, x=x, y=y,
-                           font_size=font_size, text_anchor=text_anchor,
-                           style=style)
+        element = self.svg.text(
+            text, x=x, y=y, font_size=font_size, text_anchor=text_anchor,
+            style=style)
         self.panel <= element
         return element
 
@@ -235,9 +235,10 @@ class Avatar:
         self._show()
 
     def __init__(self, gui):
+        self.images, self.heading,  self.current = [], 1, 0
         VKHANDLER[37] = self.go_left
         VKHANDLER[39] = self.go_right
-        logger('Avatar,init')
+        #logger('Avatar,init')
         self.x, self.y = 0, 0
         self._load_images(REPO % 'smkp-%s0%d.gif', gui)
         self.avatar = self.images[self.heading][self.current]
@@ -267,7 +268,7 @@ class Sprite:
     def move(self, x, y):
         #self.place, self.x, self.y = place, x, y
         #mx, my = place.get_real_position(x=self.x,y=self.y)
-        logger('%s,spr_move, real %d %d' % (self, x, y))
+        #logger('%s,spr_move, real %d %d' % (self, x, y))
         self._show(x, y)
 
     def __init__(self, gui, img, place, x, y):
