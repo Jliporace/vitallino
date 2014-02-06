@@ -215,6 +215,10 @@ class Actor:
     def go_push(self, a=0):
         self.stepper.run_command(self._push)
 
+    def go_step(self, a=0):
+        self.do_step()
+        self.do_step = self.stepper.step
+
     def step(self):
         me = self
 
@@ -227,7 +231,7 @@ class Actor:
                 #logger(command, keyword_parameters)
                 self.queue.append([command, keyword_parameters])
 
-            def step(self):
+            def step(self, a=0):
                 command, keyword_parameters = self.queue.pop(0)
                 #command,keyword_parameters = self.queue[0]
                 logger(command, keyword_parameters)
@@ -240,10 +244,12 @@ class Actor:
 
         self.stepper = Queuer()
         self.stepper.actor = self
+        logger('New stepper: %s stepper %s' % (self.stepper, self.stepper.actor))
         PLACE.solver(self)
 
     def __init__(self, avatar, place, x, y, **kw):
         logger('actor,init', avatar, place, x, y)
+        self.do_step = self.step
         self.queue = self.actor = self.heading = self.back = None
         self.avatar, self.place, self.x, self.y = avatar, place, x, y
         self.thing = Nothing()

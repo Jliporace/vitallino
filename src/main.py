@@ -48,4 +48,5 @@ def web_main(dc, pn, gui=None, spr=None, plan=SIMPLE, solver=solver):
     dc['exi'].addEventListener("click", place.actor.go_pull)
     dc['cir'].addEventListener("click", place.actor.go_take)
     dc['squ'].addEventListener("click", place.actor.go_give)
+    dc['start'].addEventListener("click", place.actor.go_step)
     return place
