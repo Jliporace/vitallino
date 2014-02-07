@@ -295,8 +295,9 @@ class Talker(Rock):
         action += self.challenge[1]
         logger('first response code %s' % action)
         #self.value = ''
+        he = self.entry
         try:
-            exec(action)
+            exec(action, locals())
             pass
             logger('first correct response: else %s' % self.world.plan[0][0])
             self.challenge[0] = dialog.get_text()
