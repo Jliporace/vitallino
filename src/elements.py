@@ -7,15 +7,15 @@ Vitallino - Criador de Jogos Simplificado
 :Contact: carlo@nce.ufrj.br
 :Date: $Date: 2013/02/27  $
 :Status: This is a "work in progress"
-:Revision: $Revision: 0.3 $
+:Revision: $Revision: 0.4 $
 :Home: `Labase http://labase.nce.ufrj.br/`__
 :Copyright: 2011, `GPL http://is.gd/3Udt`__. 
 __author__  = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
-__version__ = "0.3 $Revision$"[10:-1]
-__date__    = "2014/02/06 $Date$"
+__version__ = "0.4 $Revision$"[10:-1]
+__date__    = "2014/02/19 $Date$"
 """
 from parts import Cell, PLACE
-import sys
+#import sys
 #import parts
 
 
@@ -40,10 +40,9 @@ def inherit(base, child):
 
 
 class Way(Cell):
-    def __init__(self, avatar, place, x, y, talk='', me=None, **kw):
-        #inherit(Cell(avatar, place, x, y, me=self),self)
+    def __init__(self, avatar, place, x, y, name='', talk='', **kw):
         Cell.__init__(self, avatar, place, x, y, self)
-        self.avatar, self.place = avatar, place
+        self.avatar, self.place, self.name = avatar, place, name
         self.thing, self.x, self.y, self.m = place, x, y, self
 
 
@@ -52,18 +51,17 @@ class Tar(Cell):
         self.place.talk('Youre STUCK!!!')
         logger('Youre STUCK!!!')
 
-    def __init__(self, avatar, place, x, y, talk='', **kw):
-        #inherit(Cell(avatar, place, x, y, me=self),self)
+    def __init__(self, avatar, place, x, y, name='', talk='', **kw):
         Cell.__init__(self, avatar, place, x, y, self)
-        pass
+        self.avatar, self.place, self.name = avatar, place, name
 
 
 class Door(Cell):
-    def __init__(self, avatar, place, x, y, talk='', **kw):
+    def __init__(self, avatar, place, x, y, name='', talk='', **kw):
         #inherit(Cell(avatar, place, x, y, me=self),self)
         Cell.__init__(self, avatar, place, x, y, self)
         logger(dir(self))
-        self.thing, self.x, self.y, self.m = place, x, y, self
+        self.thing, self.x, self.y, self.name = place, x, y, name
         place.x, place.y = x, y
 
 
@@ -154,11 +152,10 @@ class Trunk(Cell):
             self.m, self.thing, entry, destination, entry.heading))
         self.thing.push(self, entry)
 
-    def __init__(self, avatar, place, x, y, talk='', **kw):
-        #inherit(Cell(avatar, place, x, y, me=self),self)
+    def __init__(self, avatar, place, x, y, name='', talk='', **kw):
         Cell.__init__(self, avatar, place, x, y, self)
         self.heading = self.entry = None
-        self.avatar, self.place = avatar, place
+        self.avatar, self.place, self.name = avatar, place, name
         self.thing, self.x, self.y, self.m = place, x, y, self
 
     def rebase(self, base):
@@ -234,11 +231,10 @@ class Rock(Cell):
             self.m, self.thing, entry, destination, entry.heading))
         self.thing.push(self, entry)
 
-    def __init__(self, avatar, place, x, y, talk='', **kw):
+    def __init__(self, avatar, place, x, y, name='', talk='', **kw):
         Cell.__init__(self, avatar, place, x, y, self)
         self.move_entry = self.heading = self.entry = None
-        #inherit(Cell(avatar, place, x, y, me=self),self)
-        self.avatar, self.place = avatar, place
+        self.avatar, self.place, self.name = avatar, place, name
         self.thing, self.x, self.y, self.m = place, x, y, self
 
     def rebase(self, base):
@@ -265,12 +261,10 @@ class Border(Cell):
         logger('Cant give this way!!')
         entry.reset()
 
-    def __init__(self, avatar, place, x, y, talk='', **kw):
-        #inherit(Cell(avatar, place, x, y, me=self),self)
+    def __init__(self, avatar, place, x, y, name='', talk='', **kw):
         Cell.__init__(self, avatar, place, x, y, self)
         self.thing, self.x, self.y, self.m = place, x, y, self
-        self.place = place  # Way(None,place, self.x, self.y)
-        #self.avatar,self.place, self.x, self.y = avatar, place, x, y
+        self.avatar, self.place, self.name = avatar, place, name
 
 
 class cons_out:
@@ -283,64 +277,8 @@ class cons_out:
 
 
 class Talker(Rock):
-    def write(self, data):
-        self.value += str(data)
-
-    def _first_response(self, dialog):
-        value = self.value = cons_out()
-        sys_out, sys.stdout = sys.stdout, value
-        sys_err, sys.stderr = sys.stderr, value
-        logger('first response %s %s %s' % (dialog, sys.stdout, sys.stderr))
-        action = dialog.get_text()
-        action += self.challenge[1]
-        logger('first response code %s' % action)
-        #self.value = ''
-        he = self.entry
-        try:
-            exec(action, locals())
-            pass
-            logger('first correct response: else %s' % self.world.plan[0][0])
-            self.challenge[0] = dialog.get_text()
-            self.move(self.world.plan[0][0])
-            self.place.talk('It looks like you did it!!')
-            self._response = self._first_response
-        except Exception as exc:
-            logger('first response exception error %s %s' % (exc, self.value.value))
-            #traceback.print_exc()
-            self.challenge[0] = dialog.get_text()
-            dialog.set_text(str(exc) + ' ' + self.value.value)
-            self._response = self._second_response
-            self.place.talk('Something went wrong in your attempt!!')
-            dialog.show()
-        else:
-            '''
-            logger('first correct response: else %s' % self.world.plan[0][0])
-            self.challenge[0] = dialog.get_text()
-            self.move(self.world.plan[0][0])
-            self.place.talk('It looks like you did it!!')
-            self._response = self._first_response
-            '''
-            pass
-        sys.stdout = sys_out
-        sys.stderr = sys_err
-        logger('first response value error %s' % self.value.value)
-
-    def _second_response(self, dialog):
-        self._response = self._first_response
-        self.place.talk('Bump me again to retry the Challenge!!')
-
-    def response(self, dialog):
-        self._response(dialog)
-
-    def _challenge(self, entry):
-        self.entry = entry
-        self._response = self._first_response
-        self.dialog = self.world.dialog(text=self.challenge[0], act=self.response)
-        self.dialog.show()
-
     def enter(self, entry, destination):
-        self.place.talk('There is a Challenge for you!!')
-        self._challenge(entry)
+        self.challenge.start(self.world.dialog, entry, self.world)
         logger('Bumped into Talker!!')
         entry.reset()
 
@@ -354,12 +292,10 @@ class Talker(Rock):
         logger('Cant give this way!!')
         entry.reset()
 
-    def __init__(self, avatar, place, x, y, talk=ZL, **kw):
+    def __init__(self, avatar, place, x, y, name='', talk=None, **kw):
         self.value = self.entry = self._response = self.dialog = None
-        #inherit(Cell(avatar, place, x, y, me=self),self)
         Cell.__init__(self, avatar, place, x, y, self)
         self.challenge = talk
         self.thing, self.x, self.y, self.m = place, x, y, self
-        self.place = place  # Way(None,place, self.x, self.y)
+        self.avatar, self.place, self.name = avatar, place, name
         self.world = self.place
-        #self.avatar,self.place, self.x, self.y = avatar, place, x, y

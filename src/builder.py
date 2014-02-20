@@ -17,6 +17,7 @@ __date__    = "2014/02/06 $Date$"
 from parts import Actor, Place
 from elements import *
 from kwarwp_factory import REPO
+from script_pt import STORY, Protagonist
 
 
 def _logger(*a):
@@ -67,7 +68,8 @@ class Builder:
     def build_actor(self, gui, place, x, y):
         #x, y = self.x, self.y
         door = place.plan[y][x]
-        actor = Actor(gui.avatar(), door, x, y)
+        #actor = Actor(gui.avatar(), door, x, y)
+        actor = Protagonist(gui.avatar(), door, x, y)
         place.actor = actor
         logger('place,init xy %s actor %s door %s' % ((x, y), actor, door))
         actor.move(door)
@@ -87,12 +89,12 @@ class Builder:
     def build_place(self, plan, gui, iv, solver):
         def line(y, row, me):
             #x = ['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)]
-            PART, IMGE, TALK = 0, 1, 2
+            PART, IMGE, NAME, TALK = 0, 1, 2, 3
             enum_row = enumerate(' %s ' % row)
             print("build_place_load(self, plan, gui, iv):", iv)
             IV = iv
             x = [IV[p][PART](
-                self.sprite(gui, IV[p][IMGE], me, x, y), me, x, y, IV[p][TALK])
+                self.sprite(gui, IV[p][IMGE], me, x, y), me, x, y, IV[p][NAME], IV[p][TALK])
                 for x, p in enum_row]
             return x
 
@@ -140,7 +142,8 @@ class Builder:
     def build_inventory(self, FS=NullSprite):
         self.sprite = FS
         ES = NullSprite
-        tk = [CHALL1, TEST1]
-        return {'.': [Way, None, tk], ' ': [Border, None, tk], '&': [Door, None, tk],
-                '@': [Tar, 'piche.gif', tk], '$': [Trunk, 'tronco.gif', tk],
-                '*': [Rock, 'pedra.gif', tk], '!': [Talker, 'paje.png', tk]}
+        #tk = [CHALL1, TEST1]
+        tk = STORY[0]
+        return {'.': [Way, None,'livre', tk], ' ': [Border, None,'floresta', tk], '&': [Door, None,'livre', tk],
+                '@': [Tar, 'piche.gif','piche', tk], '$': [Trunk, 'tronco.gif','tronco', tk],
+                '*': [Rock, 'pedra.gif','pedra', tk], '!': [Talker, 'paje.png','paje', tk]}
