@@ -14,10 +14,11 @@ Vitallino - Criador de Jogos Simplificado
 :Copyright: 2011, `GPL http://is.gd/3Udt`__. 
 __author__  = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
 __version__ = "0.3 $Revision$"[10:-1]
-__date__    = "2014/02/07 $Date$"
+__date__    = "2014/02/21 $Date$"
 """
 import sys
 from parts import Actor
+from threading import Thread, Event
 
 
 def _logger(*a):
@@ -40,22 +41,25 @@ class Protagonist(Actor):
         self.talk(ahead.name)
         return ahead.name
 
-    def va_adiante(self, a=0):
+    def set_stepper(self, stepper):
+        self.stepper = stepper
+
+    def ande(self, a=0):
         self.stepper.run_command(self._forward)
 
-    def va_de_re(self, a=0):
+    def volte(self, a=0):
         self.stepper.run_command(self._backward)
 
-    def vire_direita(self, a=0):
+    def direita(self, a=0):
         self.stepper.run_command(self._right)
 
-    def vire_esquerda(self, a=0):
+    def esquerda(self, a=0):
         self.stepper.run_command(self._left)
 
     def pegue(self, a=0):
         self.stepper.run_command(self._take)
 
-    def devolva(self, a=0):
+    def largue(self, a=0):
         self.stepper.run_command(self._give)
 
     def puxe(self, a=0):
@@ -94,6 +98,38 @@ FALHOU = 'Algo deu errado em sua tentativa'
 TENTA = 'Esbarre em mim para tentar de novo'
 
 
+class Runner(Thread):
+    """ O terreno onde o Festival Kuarup é apresentado
+    """
+    def __init__(self):
+        Thread.__init__(self)
+        self.executante, self.evento = [None] * 2
+
+    def run(self):
+        self.executante()
+
+    def run_command(self, command):
+        command()
+        self.evento.wait()
+        self.evento.clear()
+
+    def registra_executante(self, executante):
+        self.executante = executante
+        self.evento = Event()
+        Thread.__init__(self)
+        self.start()
+
+    def espera(self):
+        self.evento.wait()
+        self.evento.clear()
+
+    def continua(self):
+        self.evento.set()
+
+    def step(self):
+        self.evento.set()
+
+
 class Ato:
     def _zero_response(self, dialog):
         logger('zero response')
@@ -109,9 +145,14 @@ class Ato:
         self.value.value = ''
         sys_out, sys_err = sys.stdout, sys.stderr
         sys.stdout = sys.stderr = self.value
-        try:
+
+        def running(act=action):
             kaio = self.entry
             kaio.olhe()
+            exec(act, locals())
+        try:
+            runner = Runner()
+            runner.registra_executante(running)
             #exec(action, locals())
             pass
             logger('first correct response: else %s' % self.plan[0][0])
@@ -138,10 +179,10 @@ class Ato:
     def response(self, dialog):
         self._response(dialog)
 
-    def start(self, dialog, entry, world):
-        self.entry, self.speak, self.plan = entry, world.talk, world.plan
+    def start(self, entry, world, agent):
+        self.entry, self.speak, self.plan, self.agent = entry, world.talk, world.plan, agent
         self.speak(self.title)
-        dialog(text=self.talk, act=self.response).show()
+        world.dialog(text=self.talk, act=self.response).show()
 
     def __init__(self,
                  title=DESAFIO, talk=FALA, code=CODIGO, test=CODIGO, fail=FALHOU, success=SUCESSO, retry=TENTA):
@@ -153,7 +194,7 @@ class Ato:
             def write(self, data):
                 self.value += str(data)
 
-        self.entry, self.speak, self.plan = [None] * 3
+        self.entry, self.speak, self.plan, self.agent = [None] * 4
         self.title, self.talk, self.code, self.test = title, talk, code, test
         self.fail, self.success, self.retry = fail, success, retry
         value = self.value = Capture_sysouterr()
@@ -177,7 +218,7 @@ nome_de_numero = 1
 por_onde = list('1000')
 for vez in range(nome_de_numero):
     while kaio.olhe() != nome_de_palavra:
-        kaio.vire_direita()
+        kaio.direita()
         por_onde = [por_onde.pop(-1)] + por_onde
 ''')
 ]

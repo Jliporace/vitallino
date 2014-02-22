@@ -278,7 +278,7 @@ class cons_out:
 
 class Talker(Rock):
     def enter(self, entry, destination):
-        self.challenge.start(self.world.dialog, entry, self.world)
+        self.challenge.start(entry, self.world, self)
         logger('Bumped into Talker!!')
         entry.reset()
 
@@ -291,6 +291,9 @@ class Talker(Rock):
         self.place.talk('Cant give this way!!')
         logger('Cant give this way!!')
         entry.reset()
+
+    def replace(self, x=0, y=0):
+        self.move(self.world.plan[x][y])
 
     def __init__(self, avatar, place, x, y, name='', talk=None, **kw):
         self.value = self.entry = self._response = self.dialog = None

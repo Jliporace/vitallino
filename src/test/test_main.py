@@ -194,7 +194,7 @@ class TestMain(mocker.MockerTestCase):
         talker = self.app.plan[1][3].thing
         assert isinstance(self.app.plan[1][B].thing, Actor), self.app.plan[1][B].thing
         self.app.actor.go_forward()
-        talker.response(self.mg)
+        talker.replace()
         assert talker.x == 0, "Talker did not move to zero but remained at %d" % talker.x
         self._check_after_move(A, B, C=Door, D=Door, P=Actor)
 
