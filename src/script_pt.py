@@ -37,7 +37,7 @@ class Protagonist(Actor):
         print('thing %s x %d y %d, dx %d dy %d' % (self.place.place, x, y, dx, dy))
         ahead = self.place.place.get_next(self, self)
         #print('ahead %s avatar %s avatar%s' % (ahead, ahead))
-        print(self.place.place.plan[8][1].name, ahead)
+        #print(self.place.place.plan[8][1].name, ahead)
         self.talk(ahead.name)
         return ahead.name
 
@@ -99,17 +99,19 @@ TENTA = 'Esbarre em mim para tentar de novo'
 
 
 class Runner(Thread):
-    """ O terreno onde o Festival Kuarup é apresentado
+    """ Gerencia de thread
     """
     def __init__(self):
         Thread.__init__(self)
         self.executante, self.evento = [None] * 2
 
     def run(self):
+        print("Command run: %s" % self.executante)
         self.executante()
 
     def run_command(self, command):
         command()
+        print("Command step: %s" % command)
         self.evento.wait()
         self.evento.clear()
 
@@ -137,22 +139,23 @@ class Ato:
         self._response = self._first_response
         dialog.show()
 
+    def running(self):
+        kaio = self.entry
+        kaio.olhe()
+        exec(self.action, locals())
+
     def _first_response(self, dialog):
         logger('first response %s %s %s' % (dialog, sys.stdout, sys.stderr))
-        action = dialog.get_text()
-        action += self.test
+        self.action = dialog.get_text()
+        self.action += self.test
         logger('first response code %s' % action)
         self.value.value = ''
         sys_out, sys_err = sys.stdout, sys.stderr
         sys.stdout = sys.stderr = self.value
 
-        def running(act=action):
-            kaio = self.entry
-            kaio.olhe()
-            exec(act, locals())
         try:
             runner = Runner()
-            runner.registra_executante(running)
+            runner.registra_executante(self.running)
             #exec(action, locals())
             pass
             logger('first correct response: else %s' % self.plan[0][0])
@@ -194,7 +197,7 @@ class Ato:
             def write(self, data):
                 self.value += str(data)
 
-        self.entry, self.speak, self.plan, self.agent = [None] * 4
+        self.action, self.entry, self.speak, self.plan, self.agent = [None] * 5
         self.title, self.talk, self.code, self.test = title, talk, code, test
         self.fail, self.success, self.retry = fail, success, retry
         value = self.value = Capture_sysouterr()

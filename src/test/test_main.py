@@ -23,6 +23,7 @@ from mocker import Mocker, KWARGS, ARGS, expect  # , ANY, CONTAINS, MATCH
 from main import main
 from elements import *
 from parts import *
+from script_pt import Runner
 
 
 class TestMain(mocker.MockerTestCase):
@@ -88,7 +89,7 @@ class TestMain(mocker.MockerTestCase):
         assert isinstance(self.app.plan[1][B].thing.thing, T), self.app.plan[1][B].thing.thing
 
     def _check_after_move(self, A, B, C=Way, D=Door, P=Place, T=Nothing):
-        assert self.app.actor.x == A, self.app.actor.x
+        assert self.app.actor.x == A, "No move, still in %d" % self.app.actor.x
         #assert self.app.actor.thing == self.app.plan[1][A].place,self.app.actor.thing
         assert self.app.actor.place == self.app.plan[1][A], self.app.actor.place
         assert isinstance(self.app.plan[1][B], D), self.app.plan[1][B]
@@ -169,6 +170,28 @@ class TestMain(mocker.MockerTestCase):
         assert isinstance(self.app.plan[1][B].thing, Actor), self.app.plan[1][B].thing
         assert self.app.plan[1][B].thing.thing.leave, self.app.plan[1][B].thing.thing.leave
         self.app.actor.go_forward()
+        self._check_after_move(A, B, C=Way, D=Door)
+
+    def _runner_script(self):
+        self.app.actor.olhe()
+        self.app.actor.ande()
+
+    def testa_move_from_runner(self):
+        """move forward from runner thread"""
+        self._expect_all_place()
+        expect(self.ma.get_direction()).result(1).count(4)
+        expect(self.ma.move(ARGS))
+        self._replay_and_create_place()
+        B, A = 2, 3
+        assert isinstance(self.app.plan[1][B].thing, Actor), self.app.plan[1][B].thing
+        assert self.app.plan[1][B].thing.thing.leave, self.app.plan[1][B].thing.thing.leave
+        self.app.actor.back = 0
+        runner = Runner()
+        #self.app.actor.stepper = runner
+        runner.registra_executante(self._runner_script)
+        #runner.continua()
+        #self.app.actor.olhe()
+        #self.app.actor.ande()
         self._check_after_move(A, B, C=Way, D=Door)
 
     def testa_cant_move_forward(self):
