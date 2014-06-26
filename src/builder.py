@@ -76,8 +76,9 @@ class Builder:
         solv = 'def solver(a):\n    a.go_forward'
         dialog = gui.dialog(text=solv, act=lambda dl: logger(dl.get_text()))
         dialog.hide()
-        #actor.place = door
+        actor.place = door
         #actor.thing = door
+        #return
         gui.handler(13, actor.go_step)
         gui.handler(38, actor.go_forward)
         gui.handler(40, actor.go_backward)
@@ -87,6 +88,11 @@ class Builder:
         gui.handler(36, actor.go_give)
 
     def build_place(self, plan, gui, iv, solver):
+        place = Place()
+        place.set_plan(plan, gui, iv, solver, self.sprite)
+        return place
+
+    def nobuild_place(self, plan, gui, iv, solver):
         def line(y, row, me):
             #x = ['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)]
             PART, IMGE, NAME, TALK = 0, 1, 2, 3
@@ -98,7 +104,7 @@ class Builder:
                 for x, p in enum_row]
             return x
 
-        self.place = Place([], solver)
+        #self.place = Place([], solver)
         w = len(plan.split('\n')[0])
         border = [' ' * w]
         border.extend(plan.split('\n'))
@@ -111,8 +117,9 @@ class Builder:
                 cell.rebase(self.plan)
             ##logger(self.plan)
         plan = self.plan
-        self.place.plan = plan
-        logger('self.place.plan = plan')
+        self.place = Place(plan, solver)
+        #Place().plan = self.place.plan = plan
+        logger('self.place.plan = plan, len of plan: %d' % len(self.place.plan))
         self.place.legend = gui.text('Welcome to Kuarup!', x=350, y=45,
                                      font_size=20, text_anchor="middle",
                                      style={"stroke": "gold", 'fill': "gold"})
@@ -134,9 +141,9 @@ class Builder:
         self.build_land(gui)
         logger('self.build_land')
         place = self.build_place(plan, gui, inventory, solver)
-        logger('self.build_place(plan, gui, inventory, solver)')
+        logger('self.build_place(plan, gui, inventory, solver) len plan: %d' % len(place.plan))
         self.build_actor(gui, place, place.x, place.y)
-        logger('self.build_actor(gui, place, place.x, place.y)')
+        logger('self.build_actor(gui, place, place.x, place.y) len plan: %d' % len(place.plan))
         return place
 
     def build_inventory(self, FS=NullSprite):

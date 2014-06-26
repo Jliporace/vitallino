@@ -14,7 +14,7 @@ __author__  = "Carlo E. T. Oliveira (carlo@nce.ufrj.br) $Author: carlo $"
 __version__ = "0.4 $Revision$"[10:-1]
 __date__    = "2014/02/19 $Date$"
 """
-from parts import Cell, PLACE
+from parts import Cell, Place
 #import sys
 #import parts
 
@@ -28,15 +28,6 @@ ZL = []
 
 def execution(code):
     exec(code)
-
-
-def inherit(base, child):
-    overriden, inherited = dir(child), dir(base)
-    for member in inherited:
-        if member not in overriden:
-            setattr(child, member, getattr(base, member))
-        #child.m =  str(child.__class__)
-    return base
 
 
 class Way(Cell):
@@ -58,7 +49,6 @@ class Tar(Cell):
 
 class Door(Cell):
     def __init__(self, avatar, place, x, y, name='', talk='', **kw):
-        #inherit(Cell(avatar, place, x, y, me=self),self)
         Cell.__init__(self, avatar, place, x, y, self)
         logger(dir(self))
         self.thing, self.x, self.y, self.name = place, x, y, name
@@ -83,7 +73,7 @@ class Trunk(Cell):
     def clear(self, load=None):
         logger('%s.clear, position %d %d thing %s load %s' % (
             self.m, self.x, self.y, self.thing, load))
-        self.thing = load or PLACE  # self.place
+        self.thing = load or Place()  # self.place
 
     def reset(self):
         self.move_entry = self.null_move_entry
@@ -170,7 +160,7 @@ class Rock(Cell):
     def clear(self, load=None):
         logger('%s.clear, position %d %d thing %s load %s' % (
             self.m, self.x, self.y, self.thing, load))
-        self.thing = load or PLACE  # self.place
+        self.thing = load or Place()  # self.place
 
     def reset(self):
         self.move_entry = self.null_move_entry
