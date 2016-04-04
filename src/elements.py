@@ -15,12 +15,15 @@ __version__ = "0.4 $Revision$"[10:-1]
 __date__    = "2014/02/19 $Date$"
 """
 from parts import Cell, Place
-#import sys
-#import parts
+
+
+# import sys
+# import parts
 
 
 def _logger(*a):
     print(a)
+
 
 logger = _logger
 ZL = []
@@ -100,7 +103,7 @@ class Trunk(Cell):
         self.x, self.y = loc.x, loc.y
         self.place = loc
         loc.clear(self)
-        ##logger( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
+        # logger( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
         avatar = self.avatar
         mx, my = self.thing.get_real_position(x=loc.x, y=loc.y)
         logger('%s(trunk).move, position %d %d  entry%s real %d %d' % (
@@ -121,8 +124,8 @@ class Trunk(Cell):
     def given(self, entry, destination):
         self.place.talk('No space to drop here!!')
         entry.reset()
-        #self._move(destination)
-        #self.thing.give(self, destination)
+        # self._move(destination)
+        # self.thing.give(self, destination)
 
     def give(self, entry, direction):
         self.thing.give(self, direction)
@@ -177,7 +180,7 @@ class Rock(Cell):
         self.x, self.y = loc.x, loc.y
         self.place = loc
         loc.clear(self)
-        ##logger( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
+        # logger( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
         avatar = self.avatar
         mx, my = self.thing.get_real_position(x=loc.x, y=loc.y)
         logger('%s(rock).move, position %d %d  entry%s real %d %d' % (
@@ -263,7 +266,7 @@ class cons_out:
 
     def write(self, data):
         self.value += str(data)
-        #logger('self.value %s'%self.value)
+        # logger('self.value %s'%self.value)
 
 
 class Talker(Rock):

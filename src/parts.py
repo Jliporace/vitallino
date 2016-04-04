@@ -15,19 +15,20 @@ __version__ = "0.3 $Revision$"[10:-1]
 __date__    = "2014/02/06 $Date$"
 """
 WIND = [(0, -1), (1, 0), (0, 1), (-1, 0)]
-#Place() = None
+# Place() = None
 NOTHING = None
 
 
 def _logger(*a):
     print(a)
 
+
 logger = _logger
 
 
 class Cell:
     def __init__(self, avatar, place, x, y, me=None, **kw):
-        #inherit(Entrance(place, x, y),self)
+        # inherit(Entrance(place, x, y),self)
         self.avatar, self.place = avatar, Place()
         self.thing, self.x, self.y, self.m = place, x, y, me or self
 
@@ -88,12 +89,12 @@ class Queuer:
         self.actor = actor
 
     def run_command(self, command, **keyword_parameters):
-        #logger(command, keyword_parameters)
+        # logger(command, keyword_parameters)
         self.queue.append([command, keyword_parameters])
 
     def step(self):
         command, keyword_parameters = self.queue.pop(0)
-        #command,keyword_parameters = self.queue[0]
+        # command,keyword_parameters = self.queue[0]
         logger(command, keyword_parameters)
         Place().talk('')
         command(**keyword_parameters)
@@ -138,16 +139,16 @@ class Actor:
         loc.move(self)
 
     def give(self, loc):
-        #self.thing = self.thing.thing = self.thing.place = self.place.place
+        # self.thing = self.thing.thing = self.thing.place = self.place.place
         self.thing.move(loc)
 
     def move(self, loc):
         self.place.clear()
-        #self.x, self.y, loc.thing, self.thing = loc.x, loc.y, self, loc or self.thing
+        # self.x, self.y, loc.thing, self.thing = loc.x, loc.y, self, loc or self.thing
         self.x, self.y = loc.x, loc.y
         loc.clear(self)
         self.place = loc
-        ##logger( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
+        # logger( 'actor,move, position thing %d %d %s'%(x, y, self.thing))
         avatar = self.avatar
         mx, my = self.place.get_real_position(x=loc.x, y=loc.y)
         logger('actor.move, position %d %d  entry%s real %d %d thing %s' % (loc.x, loc.y, loc, mx, my, self.thing))
@@ -187,7 +188,7 @@ class Actor:
     def _push(self, a=0):
         self.thing.push(entry=self, direction=self.set_direction())
 
-    def go_step(self):
+    def go_steped(self):
         logger('Stepper : %s' % self.stepper)
         self.stepper.step()
 
@@ -228,12 +229,12 @@ class Actor:
                 self.actor = actor
 
             def run_command(self, command, **keyword_parameters):
-                #logger(command, keyword_parameters)
+                # logger(command, keyword_parameters)
                 self.queue.append([command, keyword_parameters])
 
             def step(self, a=0):
                 command, keyword_parameters = self.queue.pop(0)
-                #command,keyword_parameters = self.queue[0]
+                # command,keyword_parameters = self.queue[0]
                 logger(command, keyword_parameters)
                 Place().talk('')
                 command(**keyword_parameters)
@@ -258,17 +259,16 @@ class Actor:
 
 
 class Place:
-
     def set_plan(self, plan, gui, iv, solver, sprite):
         def line(y, row, me):
-            #x = ['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)]
+            # x = ['%s%d%d'%(p,x,y) for x, p in enumerate(' %s '%row)]
             PART, IMGE, NAME, TALK = 0, 1, 2, 3
             enum_row = enumerate(' %s ' % row)
-            #print("Place.set_plan(self, plan, gui, iv):", iv)
+            # print("Place.set_plan(self, plan, gui, iv):", iv)
             IV = iv
             x = [IV[p][PART](
                 sprite(gui, IV[p][IMGE], me, x, y), me, x, y, IV[p][NAME], IV[p][TALK])
-                for x, p in enum_row]
+                 for x, p in enum_row]
             return x
 
         w = len(plan.split('\n')[0])
@@ -281,10 +281,10 @@ class Place:
             self.plan += [line(y, row, self)]
             for x, cell in enumerate(self.plan[y]):
                 cell.rebase(self.plan)
-            ##logger(self.plan)
+                # logger(self.plan)
         plan = self.plan
         self.solver = solver
-        #Place().plan = self.place.plan = plan
+        # Place().plan = self.place.plan = plan
         logger('self.place.plan = plan, len of plan: %d' % len(self.plan))
         self.legend = gui.text('Welcome to Kuarup!', x=350, y=45,
                                font_size=20, text_anchor="middle",
@@ -312,7 +312,7 @@ class Place:
         return locus
 
     def taken(self, entry, destination):
-        #logger('nothing here!')
+        # logger('nothing here!')
         entry.take(destination)
 
     def take(self, entry, direction):
@@ -323,7 +323,7 @@ class Place:
 
     def given(self, entry, destination):
         logger('place.given entry %s destination %s' % (entry, destination))
-        #entry.given(entry, destination)
+        # entry.given(entry, destination)
         entry.move(destination)
 
     def give(self, entry, direction):
@@ -352,14 +352,15 @@ class Place:
 
     def talk(self, message):
         self.legend.text = message
-        #logger(self.legend.textContent)
+        # logger(self.legend.textContent)
 
     def __init__(self, plan=None, solver=None):
         if hasattr(self, "plan"):
             return
-        #global Place()
+        # global Place()
+        self.dialog = None
         self.pos = self.x = self.y = 0
-        #PLACE = self
+        # PLACE = self
         self.plan = self.plan if hasattr(self, "plan") else plan
         nosolver = lambda *a: None
         self.solver = solver if solver else nosolver
@@ -369,12 +370,13 @@ class Place:
 
     def move(self, loc):
         print("@@@@@ SHOULD NOT CALL THIS MOVE @@@@@")
+
     __INSTANCE = None
 
     def __new__(cls, *args, **kwargs):
         cls.__INSTANCE = super(Place, cls).__new__(cls, *args, **kwargs)
         print("Place __new__")
-        #cls.__new__ = cls.__init
+        # cls.__new__ = cls.__init
         cls.__new__ = lambda *args, **kwargs: cls.__INSTANCE
         return cls.__INSTANCE
 
@@ -382,17 +384,18 @@ class Place:
 class Nothing(Place):
     def give(self, entry, direction):
         logger('nothing here, bare!')
-        #entry.give(destination)
+        # entry.give(destination)
 
     def move(self, loc):
         pass
+
     __NOINSTANCE = None
 
     def __new__(cls, place=None):
         self = cls.__NOINSTANCE = object.__new__(cls)
-        #self = cls.__NOINSTANCE = super(Nothing, cls).__new__(cls)
+        # self = cls.__NOINSTANCE = super(Nothing, cls).__new__(cls)
         self.place = place  # or Place()
-        #self.plan = self.place.plan
+        # self.plan = self.place.plan
         print("Nothing __new__")
         cls.__new__ = lambda *args, **kwargs: cls.__NOINSTANCE
         return cls.__NOINSTANCE
