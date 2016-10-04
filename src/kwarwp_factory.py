@@ -134,18 +134,21 @@ class GUI:
     def path(self, d, style=ND, onMouseOver="noop", onMouseOut="noop", element=None):
         exec('element = self.svg.path(d=%s,style=%s%s)' % (
             str(d), str(style), self.get_args()))
+        element = self.svg.path(d=str(d), style=str(style))
         self.panel <= element
         return element
 
     def image(self, href, x=0, y=0, width=100, height=50, element=None):
         exec('element = self.svg.image(href="%s", x=%i, y=%i, width=%i, height=%i%s)' % (
             href, x, y, width, height, self.get_args()))
+        element = self.svg.image(href=href, x=x, y=y, width=width, height=height)
         self.panel <= element
         return element
 
     def rect(self, x=0, y=0, width=100, height=50, style=ND, element=None):
         exec('element = self.svg.rect(x=%i, y=%i, width=%i, height=%i,style=%s%s)' % (
             x, y, width, height, str(style), self.get_args()))
+        element = self.svg.rect(x=x, y=y, width=width, height=height)
         self.panel <= element
         return element
 

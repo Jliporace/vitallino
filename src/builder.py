@@ -89,6 +89,7 @@ class Builder:
 
     def build_place(self, plan, gui, iv, solver):
         place = Place()
+        return place
         place.set_plan(plan, gui, iv, solver, self.sprite)
         return place
 
@@ -142,6 +143,7 @@ class Builder:
         logger('self.build_land')
         place = self.build_place(plan, gui, inventory, solver)
         logger('self.build_place(plan, gui, inventory, solver) len plan: %d' % len(place.plan))
+        return place
         self.build_actor(gui, place, place.x, place.y)
         logger('self.build_actor(gui, place, place.x, place.y) len plan: %d' % len(place.plan))
         return place

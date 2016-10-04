@@ -277,6 +277,7 @@ class Place:
         border.extend([' ' * w])
         self.plan = []
         logger('self.plan = []')
+        """
         for y, row in enumerate(border):
             self.plan += [line(y, row, self)]
             for x, cell in enumerate(self.plan[y]):
@@ -289,7 +290,7 @@ class Place:
         self.legend = gui.text('Welcome to Kuarup!', x=350, y=45,
                                font_size=20, text_anchor="middle",
                                style={"stroke": "gold", 'fill': "gold"})
-        logger([(p[1], p[1].x) for p in plan])
+        logger([(p[1], p[1].x) for p in plan])"""
         self.dialog = gui.dialog
         return self
 
